@@ -53,9 +53,25 @@
     background: white;
     width: 100%;
   }
-  .pickers { display: flex; gap: 16px; flex-wrap: wrap; }
+  .pickers { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
   .pickers > div { flex: 1; min-width: 140px; }
   .pickers > div.prog { flex: 2; min-width: 220px; }
+  button {
+    font-family: inherit;
+    font-size: 1.05rem;
+    padding: 10px 22px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    white-space: nowrap;
+  }
+  button:hover { opacity: .9; }
+  .chord.playing { background: var(--accent); }
+  .chord.playing .name { color: white; }
+  .chord.playing .deg { color: #cfe0ff; }
   /* résultat */
   .result { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
   .chord {
@@ -105,6 +121,9 @@
     <div class="prog">
       <label for="prog">Progression</label>
       <select id="prog"></select>
+    </div>
+    <div style="flex: 0">
+      <button id="play">&#9654; &Eacute;couter</button>
     </div>
   </div>
   <div class="result" id="result"></div>
@@ -176,6 +195,7 @@ PROGRESSIONS.forEach((p, i) => {
 });
 
 function render() {
+  if (window.__stopPlayback) window.__stopPlayback();  // stoppe l'audio si on change pendant la lecture
   const key = keySel.value;
   const prog = PROGRESSIONS[+progSel.value];
   // cartes d'accords
@@ -208,6 +228,69 @@ KEYS.forEach(k => {
 keySel.addEventListener("change", render);
 progSel.addEventListener("change", render);
 render();
+
+// ---- Preview audio (Web Audio API, son type corde pincée) ----
+const CHORD_SEC = 1.3;          // durée de chaque accord
+let audioCtx = null, stopFns = [], isPlaying = false;
+
+function chordMidis(key, degree) {
+  const scale = FLAT_KEYS.has(key) ? FLAT : SHARP;
+  const d = DEGREE_DEFS[degree];
+  const root = 48 + (scale.indexOf(key) + d.off) % 12;   // registre C3-B3, proche guitare
+  const third = d.suf === "" ? 4 : 3;
+  const fifth = d.suf === "dim" ? 6 : 7;
+  return [root - 12, root, root + third, root + fifth, root + 12];
+}
+
+function playChordAt(midis, when) {
+  midis.forEach((m, i) => {
+    const t = when + i * 0.045;                          // léger strum grave → aigu
+    const o = audioCtx.createOscillator();
+    o.type = "triangle";
+    o.frequency.value = 440 * Math.pow(2, (m - 69) / 12);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(m < 48 ? 0.10 : 0.14, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, t + CHORD_SEC);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(t);
+    o.stop(t + CHORD_SEC + 0.05);
+    stopFns.push(() => { try { o.stop(); } catch (e) {} });
+  });
+}
+
+function stopPlayback() {
+  stopFns.forEach(f => f());
+  stopFns = [];
+  isPlaying = false;
+  document.getElementById("play").innerHTML = "&#9654; Écouter";
+  document.querySelectorAll(".chord.playing").forEach(c => c.classList.remove("playing"));
+}
+window.__stopPlayback = stopPlayback;
+
+document.getElementById("play").addEventListener("click", () => {
+  if (isPlaying) { stopPlayback(); return; }
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume();
+  isPlaying = true;
+  document.getElementById("play").innerHTML = "&#9632; Stop";
+
+  const key = keySel.value;
+  const prog = PROGRESSIONS[+progSel.value];
+  const cards = document.querySelectorAll(".chord");
+  const t0 = audioCtx.currentTime + 0.05;
+
+  prog.degrees.forEach((deg, i) => {
+    playChordAt(chordMidis(key, deg), t0 + i * CHORD_SEC);
+    const hl = setTimeout(() => {
+      cards.forEach(c => c.classList.remove("playing"));
+      if (cards[i]) cards[i].classList.add("playing");
+    }, (t0 - audioCtx.currentTime + i * CHORD_SEC) * 1000);
+    stopFns.push(() => clearTimeout(hl));
+  });
+  const end = setTimeout(stopPlayback, (t0 - audioCtx.currentTime + prog.degrees.length * CHORD_SEC) * 1000 + 200);
+  stopFns.push(() => clearTimeout(end));
+});
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
 </script>
