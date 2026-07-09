@@ -333,7 +333,10 @@ function drawFretboardH(svg) {
 }
 
 // ---- Logique du jeu ----
+let autoNextTimer = null;
+
 function newSequence() {
+  clearTimeout(autoNextTimer);
   const pool = allowedNotes();
   sequence = [];
   let prev = -1;
@@ -386,6 +389,7 @@ function onFretClick(string, fret, g) {
     highlightCurrent();
     if (current >= sequence.length) {
       updateStatus(good === sequence.length ? "Sans faute, bravo !" : "", good === sequence.length ? "ok" : "");
+      autoNextTimer = setTimeout(newSequence, 2200); // nouvelle série automatique
     } else {
       document.getElementById("progress").textContent = `Note ${current + 1} / ${sequence.length}`;
     }
