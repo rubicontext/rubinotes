@@ -69,6 +69,7 @@
     white-space: nowrap;
   }
   button:hover { opacity: .9; }
+  button.secondary { background: white; color: var(--accent); }
   .chord.playing { background: var(--accent); }
   .chord.playing .name { color: white; }
   .chord.playing .deg { color: #cfe0ff; }
@@ -125,6 +126,9 @@
     <div style="flex: 0">
       <button id="play">&#9654; &Eacute;couter</button>
     </div>
+    <div style="flex: 0">
+      <button id="toggle-notation" class="secondary"></button>
+    </div>
   </div>
   <div class="result" id="result"></div>
 </div>
@@ -150,15 +154,19 @@ const FLAT  = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
 const KEYS = ["C","G","D","A","E","F","Bb","Eb","Ab","Db","B","F#"];
 const FLAT_KEYS = new Set(["F","Bb","Eb","Ab","Db"]);
 
-// degrés diatoniques + le III majeur (emprunté, pour la cadence andalouse)
+// degrés diatoniques + degrés empruntés courants (rock, flamenco, grunge...)
 const DEGREE_DEFS = {
   "I":    {off: 0,  suf: ""},
   "ii":   {off: 2,  suf: "m"},
+  "bIII": {off: 3,  suf: ""},
   "iii":  {off: 4,  suf: "m"},
   "III":  {off: 4,  suf: ""},
   "IV":   {off: 5,  suf: ""},
+  "iv":   {off: 5,  suf: "m"},
   "V":    {off: 7,  suf: ""},
+  "bVI":  {off: 8,  suf: ""},
   "vi":   {off: 9,  suf: "m"},
+  "bVII": {off: 10, suf: ""},
   "vii°": {off: 11, suf: "dim"},
 };
 
@@ -168,31 +176,100 @@ function chordName(key, degree) {
   return scale[(scale.indexOf(key) + d.off) % 12] + d.suf;
 }
 
-// ---- Progressions avec leur libellé ----
+// ---- Progressions triées par genre ----
 const PROGRESSIONS = [
-  {label: "Rock — I IV V IV", degrees: ["I","IV","V","IV"]},
-  {label: "Pop universelle (No Woman No Cry, Let It Be) — I V vi IV", degrees: ["I","V","vi","IV"]},
-  {label: "Pop mélancolique — vi IV I V", degrees: ["vi","IV","I","V"]},
-  {label: "Années 50 / doo-wop (Stand By Me) — I vi IV V", degrees: ["I","vi","IV","V"]},
-  {label: "Cadence jazz — ii V I", degrees: ["ii","V","I"]},
-  {label: "Reggae trois accords — I IV I V", degrees: ["I","IV","I","V"]},
-  {label: "Cadence andalouse (flamenco) — vi V IV III", degrees: ["vi","V","IV","III"]},
-  {label: "Blues 12 mesures", degrees: ["I","I","I","I","IV","IV","I","I","V","IV","I","V"]},
+  // Rock
+  {genre: "Rock", name: "Rock classique", degrees: ["I","IV","V","IV"]},
+  {genre: "Rock", name: "Rock sudiste (Sweet Home Alabama)", degrees: ["I","bVII","IV"]},
+  {genre: "Rock", name: "Rock alternatif (Creep)", degrees: ["I","III","IV","iv"]},
+  {genre: "Rock", name: "Grunge (Smells Like Teen Spirit)", degrees: ["I","IV","bIII","bVI"]},
+  {genre: "Rock", name: "Hard rock 70s", degrees: ["I","bIII","IV","I"]},
+  {genre: "Rock", name: "Punk rock", degrees: ["I","IV","V","V"]},
+  {genre: "Rock", name: "Rock épique (stade)", degrees: ["I","V","vi","IV"]},
+  // Pop
+  {genre: "Pop", name: "Pop universelle (Let It Be)", degrees: ["I","V","vi","IV"]},
+  {genre: "Pop", name: "Pop mélancolique", degrees: ["vi","IV","I","V"]},
+  {genre: "Pop", name: "Doo-wop 50s (Stand By Me)", degrees: ["I","vi","IV","V"]},
+  {genre: "Pop", name: "Pop 80s", degrees: ["I","iii","IV","V"]},
+  {genre: "Pop", name: "Ballade pop", degrees: ["I","IV","vi","V"]},
+  {genre: "Pop", name: "Canon de Pachelbel", degrees: ["I","V","vi","iii","IV","I","IV","V"]},
+  // Folk / Country
+  {genre: "Folk / Country", name: "Folk trois accords", degrees: ["I","IV","I","V"]},
+  {genre: "Folk / Country", name: "Country classique", degrees: ["I","IV","V","I"]},
+  {genre: "Folk / Country", name: "Ballade folk (Knockin' on Heaven's Door)", degrees: ["I","V","ii","I","V","IV"]},
+  {genre: "Folk / Country", name: "Folk celtique", degrees: ["I","bVII","IV","I"]},
+  // Blues
+  {genre: "Blues", name: "Blues 12 mesures", degrees: ["I","I","I","I","IV","IV","I","I","V","IV","I","V"]},
+  {genre: "Blues", name: "Blues quick change", degrees: ["I","IV","I","I","IV","IV","I","I","V","IV","I","V"]},
+  {genre: "Blues", name: "Blues mineur", degrees: ["vi","ii","vi","III"]},
+  // Jazz
+  {genre: "Jazz", name: "Cadence ii-V-I", degrees: ["ii","V","I"]},
+  {genre: "Jazz", name: "Anatole", degrees: ["I","vi","ii","V"]},
+  {genre: "Jazz", name: "Turnaround", degrees: ["iii","vi","ii","V"]},
+  {genre: "Jazz", name: "Minor swing (manouche)", degrees: ["vi","ii","III","vi"]},
+  // Reggae / Ska
+  {genre: "Reggae / Ska", name: "Reggae roots (No Woman No Cry)", degrees: ["I","V","vi","IV"]},
+  {genre: "Reggae / Ska", name: "Reggae deux accords", degrees: ["I","V","I","V"]},
+  {genre: "Reggae / Ska", name: "Reggae mineur", degrees: ["vi","V","IV","V"]},
+  {genre: "Reggae / Ska", name: "Ska", degrees: ["I","ii","IV","V"]},
+  // Rap / Hip-hop
+  {genre: "Rap / Hip-hop", name: "Boom bap", degrees: ["vi","IV","vi","V"]},
+  {genre: "Rap / Hip-hop", name: "G-funk west coast", degrees: ["vi","V","vi","V"]},
+  {genre: "Rap / Hip-hop", name: "Trap (boucle 2 accords)", degrees: ["vi","vi","IV","IV"]},
+  {genre: "Rap / Hip-hop", name: "Lo-fi chill", degrees: ["ii","V","I","vi"]},
+  // Soul / R&B / Funk
+  {genre: "Soul / R&B / Funk", name: "Soul Motown", degrees: ["I","iii","vi","V"]},
+  {genre: "Soul / R&B / Funk", name: "R&B descendant", degrees: ["IV","iii","ii","I"]},
+  {genre: "Soul / R&B / Funk", name: "Funk (vamp 2 accords)", degrees: ["I","IV","I","IV"]},
+  // Latin / Flamenco
+  {genre: "Latin / Flamenco", name: "Cadence andalouse", degrees: ["vi","V","IV","III"]},
+  {genre: "Latin / Flamenco", name: "Bossa nova", degrees: ["I","ii","V","I"]},
+  {genre: "Latin / Flamenco", name: "Latin mineur (Oye Como Va)", degrees: ["vi","ii","vi","ii"]},
+  // Chanson / Émotion
+  {genre: "Chanson / Émotion", name: "Chanson française (valse)", degrees: ["vi","III","vi","III"]},
+  {genre: "Chanson / Émotion", name: "Hallelujah", degrees: ["I","vi","I","vi","IV","V","I","V"]},
 ];
+
+// ---- Notation FR / EN (partagée avec la page notes via localStorage) ----
+let notation = localStorage.getItem("notation") || "fr";
+const EN2FR = {C: "Do", D: "Ré", E: "Mi", F: "Fa", G: "Sol", A: "La", B: "Si"};
+
+function dispChord(name) {
+  if (notation === "en") return name;
+  return name.replace(/^[A-G][#b]?/, m => EN2FR[m[0]] + (m[1] || ""));
+}
 
 const keySel = document.getElementById("key");
 const progSel = document.getElementById("prog");
 
-KEYS.forEach(k => {
-  const o = document.createElement("option");
-  o.value = k; o.textContent = k;
-  keySel.appendChild(o);
-});
-PROGRESSIONS.forEach((p, i) => {
-  const o = document.createElement("option");
-  o.value = i; o.textContent = p.label;
-  progSel.appendChild(o);
-});
+function fillKeySelect() {
+  const cur = keySel.value;
+  keySel.innerHTML = "";
+  KEYS.forEach(k => {
+    const o = document.createElement("option");
+    o.value = k; o.textContent = dispChord(k);
+    keySel.appendChild(o);
+  });
+  if (cur) keySel.value = cur;
+}
+fillKeySelect();
+
+// progressions groupées par genre (optgroup)
+{
+  const byGenre = {};
+  PROGRESSIONS.forEach((p, i) => { (byGenre[p.genre] = byGenre[p.genre] || []).push({p, i}); });
+  for (const genre of Object.keys(byGenre)) {
+    const og = document.createElement("optgroup");
+    og.label = genre;
+    byGenre[genre].forEach(({p, i}) => {
+      const o = document.createElement("option");
+      o.value = i;
+      o.textContent = p.degrees.length > 8 ? p.name : `${p.name} — ${p.degrees.join(" ")}`;
+      og.appendChild(o);
+    });
+    progSel.appendChild(og);
+  }
+}
 
 function render() {
   if (window.__stopPlayback) window.__stopPlayback();  // stoppe l'audio si on change pendant la lecture
@@ -204,7 +281,7 @@ function render() {
   prog.degrees.forEach(deg => {
     const div = document.createElement("div");
     div.className = "chord";
-    div.innerHTML = `<div class="name">${chordName(key, deg)}</div><div class="deg">${deg}</div>`;
+    div.innerHTML = `<div class="name">${dispChord(chordName(key, deg))}</div><div class="deg">${deg}</div>`;
     res.appendChild(div);
   });
   // table : ligne sélectionnée
@@ -215,15 +292,34 @@ function render() {
 // table des tonalités
 const tbody = document.getElementById("keytable");
 const TABLE_DEGREES = ["I","ii","iii","IV","V","vi","vii°"];
-KEYS.forEach(k => {
-  const tr = document.createElement("tr");
-  tr.dataset.key = k;
-  tr.innerHTML = "<td>" + k + "</td>" +
-    TABLE_DEGREES.map(d =>
-      `<td${DEGREE_DEFS[d].suf ? ' class="deg-min"' : ''}>${chordName(k, d)}</td>`).join("");
-  tr.addEventListener("click", () => { keySel.value = k; render(); });
-  tbody.appendChild(tr);
+function buildTable() {
+  tbody.innerHTML = "";
+  KEYS.forEach(k => {
+    const tr = document.createElement("tr");
+    tr.dataset.key = k;
+    tr.innerHTML = "<td>" + dispChord(k) + "</td>" +
+      TABLE_DEGREES.map(d =>
+        `<td${DEGREE_DEFS[d].suf ? ' class="deg-min"' : ''}>${dispChord(chordName(k, d))}</td>`).join("");
+    tr.addEventListener("click", () => { keySel.value = k; render(); });
+    tbody.appendChild(tr);
+  });
+}
+buildTable();
+
+// toggle notation FR / EN
+function updateNotationButton() {
+  document.getElementById("toggle-notation").textContent =
+    notation === "fr" ? "Notation : Do Ré Mi" : "Notation : C D E";
+}
+document.getElementById("toggle-notation").addEventListener("click", () => {
+  notation = notation === "fr" ? "en" : "fr";
+  localStorage.setItem("notation", notation);
+  updateNotationButton();
+  fillKeySelect();
+  buildTable();
+  render();
 });
+updateNotationButton();
 
 keySel.addEventListener("change", render);
 progSel.addEventListener("change", render);

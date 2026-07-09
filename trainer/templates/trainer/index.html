@@ -139,6 +139,7 @@
 <div class="actions">
   <button id="restart">Nouvelle série</button>
   <button id="toggle-names" class="secondary">Afficher les notes</button>
+  <button id="toggle-notation" class="secondary"></button>
 </div>
 
 <script>
@@ -165,6 +166,15 @@ const NOTES = [
   {name:"Sol", string:1, fret:3, step:9},
 ];
 const STRING_LABELS = {1:"mi", 2:"si", 3:"sol", 4:"ré", 5:"la", 6:"mi"};
+const STRING_LABELS_EN = {1:"e", 2:"B", 3:"G", 4:"D", 5:"A", 6:"E"};
+const FR2EN = {"Mi":"E", "Fa":"F", "Sol":"G", "La":"A", "Si":"B", "Do":"C", "Ré":"D"};
+
+// notation préférée (partagée avec la page accords)
+let notation = localStorage.getItem("notation") || "fr";
+function noteName(n)  { return notation === "fr" ? n.name : FR2EN[n.name]; }
+function noteBoth(n)  { return notation === "fr" ? `${n.name} (${FR2EN[n.name]})` : `${FR2EN[n.name]} (${n.name})`; }
+function strName(s)   { return notation === "fr" ? STRING_LABELS[s] : STRING_LABELS_EN[s]; }
+function strBoth(s)   { return notation === "fr" ? `${STRING_LABELS[s]} (${STRING_LABELS_EN[s]})` : `${STRING_LABELS_EN[s]} (${STRING_LABELS[s]})`; }
 const SEQ_LEN = 12;
 const SVGNS = "http://www.w3.org/2000/svg";
 
@@ -231,6 +241,16 @@ function setNoteColor(i, color) {
   g.querySelector(".stem").setAttribute("stroke", color);
 }
 
+// affiche le nom de la note sous la portée une fois qu'elle a été jouée
+function annotateNote(i, color) {
+  const g = document.getElementById("note-" + i);
+  if (!g || g.querySelector(".ann")) return;
+  const t = el("text", {x: NOTE_X0 + i * NOTE_DX, y: 226, "text-anchor": "middle",
+                        "font-size": "15", fill: color, class: "ann"});
+  t.textContent = noteName(sequence[i]);
+  g.appendChild(t);
+}
+
 function highlightCurrent() {
   if (current >= sequence.length) return;
   setNoteColor(current, "#2563eb");
@@ -264,7 +284,7 @@ function drawFretboard() {
     const g = el("g", {class:"note-label"});
     g.appendChild(el("circle", {cx:p.x, cy:p.y, r:11}));
     const t = el("text", {x:p.x, y:p.y + 4, "text-anchor":"middle"});
-    t.textContent = n.name;
+    t.textContent = noteName(n);
     g.appendChild(t);
     svg.appendChild(g);
   }
@@ -301,7 +321,7 @@ function drawFretboardH(svg) {
                                 class: off ? "string-off" : ""}));
     const t = el("text", {x:14, y:y+5, "text-anchor":"middle", "font-size":"13",
                           fill:"#666", "font-style":"italic", class: off ? "string-off" : ""});
-    t.textContent = STRING_LABELS[s];
+    t.textContent = strName(s);
     svg.appendChild(t);
     if (off) continue; // corde exclue : ni zone cliquable ni note dessus
     for (let f = 0; f <= 3; f++) {
@@ -346,15 +366,17 @@ function onFretClick(string, fret, g) {
   if (ok) {
     good++;
     setNoteColor(current, "#16a34a");
+    annotateNote(current, "#16a34a");
     g.classList.add("flash-ok");
-    updateStatus(`&#10003; ${note.name}`, "ok");
+    updateStatus(`&#10003; ${noteBoth(note)}`, "ok");
   } else {
     setNoteColor(current, "#dc2626");
+    annotateNote(current, "#dc2626");
     g.classList.add("flash-ko");
     // surbrillance de la position attendue
     const target = document.querySelector(`.fretpos[data-string="${note.string}"][data-fret="${note.fret}"]`);
     if (target) target.classList.add("flash-target");
-    updateStatus(`&#10007; C'était ${note.name} &mdash; corde ${STRING_LABELS[note.string]}, case ${note.fret}`, "ko");
+    updateStatus(`&#10007; C'était ${noteBoth(note)} &mdash; corde ${strBoth(note.string)}, case ${note.fret}`, "ko");
   }
   current++;
   setTimeout(() => {
@@ -390,6 +412,24 @@ document.getElementById("exclude").addEventListener("input", (e) => {
   localStorage.setItem("excl", excluded);
   applyExcluded();
 });
+
+// toggle notation FR / EN
+function updateNotationButton() {
+  document.getElementById("toggle-notation").textContent =
+    notation === "fr" ? "Notation : Do Ré Mi" : "Notation : C D E";
+}
+document.getElementById("toggle-notation").addEventListener("click", () => {
+  notation = notation === "fr" ? "en" : "fr";
+  localStorage.setItem("notation", notation);
+  updateNotationButton();
+  drawFretboard();
+  // met à jour les annotations déjà affichées sur la portée
+  document.querySelectorAll("#staff .ann").forEach(t => {
+    const i = +t.parentElement.id.replace("note-", "");
+    t.textContent = noteName(sequence[i]);
+  });
+});
+updateNotationButton();
 
 document.getElementById("restart").addEventListener("click", newSequence);
 applyExcluded();
