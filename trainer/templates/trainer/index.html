@@ -83,7 +83,11 @@
   button.secondary { background: white; color: var(--accent); }
   button.secondary.active { background: #dbeafe; }
   .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-  #fretboard { height: auto; display: block; margin: 0 auto; width: 100%; max-width: 520px; }
+  #fretboard { height: auto; display: block; margin: 0 auto; width: 100%; max-width: 720px; }
+  .strsel { display: flex; align-items: center; gap: 14px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+  .strsel label { font-size: .95rem; color: #555; }
+  .strsel input[type="range"] { width: 180px; accent-color: var(--accent); }
+  .string-off { opacity: .22; }
   /* paysage (téléphone à l'horizontale) : portée et manche côte à côte */
   @media (orientation: landscape) and (max-height: 540px) {
     body { padding: 10px 12px; }
@@ -125,6 +129,10 @@
 
   <div class="card fret-card">
     <svg id="fretboard" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="strsel">
+      <label for="exclude">Cordes graves exclues&nbsp;: <strong id="exclval">aucune</strong></label>
+      <input type="range" id="exclude" min="0" max="3" value="0" step="1">
+    </div>
   </div>
 </div>
 
@@ -236,6 +244,12 @@ function highlightCurrent() {
 const H = { NUT_X: 90, FRET_W: 110, STR_Y0: 45, STR_DY: 28,
             CENTERS: {0: 55, 1: 145, 2: 255, 3: 365} };
 
+// nombre de cordes graves exclues (0-3 : mi, la, ré), persistant
+let excluded = Math.min(3, Math.max(0, +(localStorage.getItem("excl") || 0)));
+
+function isStringOff(s) { return s > 6 - excluded; }
+function allowedNotes() { return NOTES.filter(n => !isStringOff(n.string)); }
+
 function posOf(s, f) {
   return {x: H.CENTERS[f], y: H.STR_Y0 + (s - 1) * H.STR_DY};
 }
@@ -244,8 +258,8 @@ function drawFretboard() {
   const svg = document.getElementById("fretboard");
   svg.innerHTML = "";
   drawFretboardH(svg);
-  // noms des notes naturelles (visibles via le toggle)
-  for (const n of NOTES) {
+  // noms des notes naturelles (visibles via le toggle), pas sur les cordes exclues
+  for (const n of allowedNotes()) {
     const p = posOf(n.string, n.fret);
     const g = el("g", {class:"note-label"});
     g.appendChild(el("circle", {cx:p.x, cy:p.y, r:11}));
@@ -266,7 +280,7 @@ function addFretPos(svg, s, f, zone) {
 }
 
 function drawFretboardH(svg) {
-  svg.setAttribute("viewBox", "0 0 480 215");
+  svg.setAttribute("viewBox", "0 0 432 215");
   const topY = H.STR_Y0, botY = H.STR_Y0 + 5 * H.STR_DY;
   svg.appendChild(el("rect", {x:H.NUT_X, y:topY-8, width:H.FRET_W*3, height:botY-topY+16,
                               fill:"#f3e8d8", rx:3}));
@@ -281,12 +295,15 @@ function drawFretboardH(svg) {
   }
   for (let s = 1; s <= 6; s++) {
     const y = H.STR_Y0 + (s-1) * H.STR_DY;
+    const off = isStringOff(s);
     svg.appendChild(el("line", {x1:30, y1:y, x2:H.NUT_X+H.FRET_W*3, y2:y,
-                                stroke:"#555", "stroke-width": 0.8 + s*0.35}));
+                                stroke:"#555", "stroke-width": 0.8 + s*0.35,
+                                class: off ? "string-off" : ""}));
     const t = el("text", {x:14, y:y+5, "text-anchor":"middle", "font-size":"13",
-                          fill:"#666", "font-style":"italic"});
+                          fill:"#666", "font-style":"italic", class: off ? "string-off" : ""});
     t.textContent = STRING_LABELS[s];
     svg.appendChild(t);
+    if (off) continue; // corde exclue : ni zone cliquable ni note dessus
     for (let f = 0; f <= 3; f++) {
       const zoneX = f === 0 ? 25 : H.NUT_X + (f - 1) * H.FRET_W;
       const zoneW = f === 0 ? H.NUT_X - 30 : H.FRET_W;
@@ -297,13 +314,14 @@ function drawFretboardH(svg) {
 
 // ---- Logique du jeu ----
 function newSequence() {
+  const pool = allowedNotes();
   sequence = [];
   let prev = -1;
   for (let i = 0; i < SEQ_LEN; i++) {
     let idx;
-    do { idx = Math.floor(Math.random() * NOTES.length); } while (idx === prev);
+    do { idx = Math.floor(Math.random() * pool.length); } while (idx === prev);
     prev = idx;
-    sequence.push(NOTES[idx]);
+    sequence.push(pool[idx]);
   }
   current = 0; good = 0; locked = false;
   drawStaff();
@@ -359,9 +377,22 @@ document.getElementById("toggle-names").addEventListener("click", (e) => {
   e.target.textContent = on ? "Masquer les notes" : "Afficher les notes";
 });
 
+// slider d'exclusion des cordes graves
+const EXCL_LABELS = ["aucune", "mi grave", "mi + la", "mi + la + ré"];
+function applyExcluded() {
+  document.getElementById("exclude").value = excluded;
+  document.getElementById("exclval").textContent = EXCL_LABELS[excluded];
+  drawFretboard();
+  newSequence();
+}
+document.getElementById("exclude").addEventListener("input", (e) => {
+  excluded = +e.target.value;
+  localStorage.setItem("excl", excluded);
+  applyExcluded();
+});
+
 document.getElementById("restart").addEventListener("click", newSequence);
-drawFretboard();
-newSequence();
+applyExcluded();
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
 </script>
