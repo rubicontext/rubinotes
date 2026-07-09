@@ -245,7 +245,7 @@ function setNoteColor(i, color) {
 function annotateNote(i, color) {
   const g = document.getElementById("note-" + i);
   if (!g || g.querySelector(".ann")) return;
-  const t = el("text", {x: NOTE_X0 + i * NOTE_DX, y: 226, "text-anchor": "middle",
+  const t = el("text", {x: NOTE_X0 + i * NOTE_DX, y: 26, "text-anchor": "middle",
                         "font-size": "15", fill: color, class: "ann"});
   t.textContent = noteName(sequence[i]);
   g.appendChild(t);
