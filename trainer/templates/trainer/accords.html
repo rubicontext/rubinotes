@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accords — progressions</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --bg: #faf8f4;
+    --accent: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; font-weight: normal; }
+  h2 { font-size: 1.1rem; font-weight: normal; color: #555; margin: 0 0 10px; }
+  .topnav { display: flex; gap: 18px; margin-bottom: 10px; font-size: .95rem; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 16px; }
+  .card {
+    background: white;
+    border: 1px solid #e5e0d8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    max-width: 820px;
+    width: 100%;
+    overflow-x: auto;
+  }
+  label { font-size: .95rem; color: #555; display: block; margin-bottom: 4px; }
+  select {
+    font-family: inherit;
+    font-size: 1.05rem;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    width: 100%;
+  }
+  .pickers { display: flex; gap: 16px; flex-wrap: wrap; }
+  .pickers > div { flex: 1; min-width: 140px; }
+  .pickers > div.prog { flex: 2; min-width: 220px; }
+  /* résultat */
+  .result { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .chord {
+    background: #eff6ff;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 0;
+    text-align: center;
+    flex: 1;
+    min-width: 64px;
+    max-width: 110px;
+  }
+  .chord .name { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
+  .chord .deg { font-size: .8rem; color: #888; margin-top: 2px; }
+  /* table des tonalités */
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+  th, td { padding: 8px 10px; text-align: center; border-bottom: 1px solid #eee; }
+  th { color: #888; font-weight: normal; font-size: .85rem; }
+  th.deg-min, td.deg-min { color: #997a00; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #f0f4ff; }
+  tbody tr.sel { background: #dbeafe; }
+  tbody tr.sel td:first-child { font-weight: bold; }
+  td:first-child { font-weight: bold; }
+  .hint { font-size: .8rem; color: #999; margin-top: 8px; }
+  @media (max-width: 600px) {
+    body { padding: 12px 8px; }
+    h1 { font-size: 1.15rem; }
+    .card { padding: 12px 10px; border-radius: 10px; margin-bottom: 12px; }
+    .chord .name { font-size: 1.2rem; }
+    th, td { padding: 6px 5px; font-size: .85rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav"><a href="/">Lecture de notes</a><a href="/accords" class="on">Accords</a></nav>
+<h1>Générateur d'accords</h1>
+<div class="sub">Choisis une tonalité et une progression</div>
+
+<div class="card">
+  <div class="pickers">
+    <div>
+      <label for="key">Tonalité (accord de base)</label>
+      <select id="key"></select>
+    </div>
+    <div class="prog">
+      <label for="prog">Progression</label>
+      <select id="prog"></select>
+    </div>
+  </div>
+  <div class="result" id="result"></div>
+</div>
+
+<div class="card">
+  <h2>Accords associés par tonalité</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Tonalité</th><th>I</th><th class="deg-min">ii</th><th class="deg-min">iii</th>
+        <th>IV</th><th>V</th><th class="deg-min">vi</th><th class="deg-min">vii°</th>
+      </tr>
+    </thead>
+    <tbody id="keytable"></tbody>
+  </table>
+  <div class="hint">Majuscules = accords majeurs, minuscules = mineurs. Clique sur une ligne pour choisir la tonalité.</div>
+</div>
+
+<script>
+// ---- Théorie : accords diatoniques d'une gamme majeure ----
+const SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const FLAT  = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+const KEYS = ["C","G","D","A","E","F","Bb","Eb","Ab","Db","B","F#"];
+const FLAT_KEYS = new Set(["F","Bb","Eb","Ab","Db"]);
+
+// degrés diatoniques + le III majeur (emprunté, pour la cadence andalouse)
+const DEGREE_DEFS = {
+  "I":    {off: 0,  suf: ""},
+  "ii":   {off: 2,  suf: "m"},
+  "iii":  {off: 4,  suf: "m"},
+  "III":  {off: 4,  suf: ""},
+  "IV":   {off: 5,  suf: ""},
+  "V":    {off: 7,  suf: ""},
+  "vi":   {off: 9,  suf: "m"},
+  "vii°": {off: 11, suf: "dim"},
+};
+
+function chordName(key, degree) {
+  const scale = FLAT_KEYS.has(key) ? FLAT : SHARP;
+  const d = DEGREE_DEFS[degree];
+  return scale[(scale.indexOf(key) + d.off) % 12] + d.suf;
+}
+
+// ---- Progressions avec leur libellé ----
+const PROGRESSIONS = [
+  {label: "Rock — I IV V IV", degrees: ["I","IV","V","IV"]},
+  {label: "Pop universelle (No Woman No Cry, Let It Be) — I V vi IV", degrees: ["I","V","vi","IV"]},
+  {label: "Pop mélancolique — vi IV I V", degrees: ["vi","IV","I","V"]},
+  {label: "Années 50 / doo-wop (Stand By Me) — I vi IV V", degrees: ["I","vi","IV","V"]},
+  {label: "Cadence jazz — ii V I", degrees: ["ii","V","I"]},
+  {label: "Reggae trois accords — I IV I V", degrees: ["I","IV","I","V"]},
+  {label: "Cadence andalouse (flamenco) — vi V IV III", degrees: ["vi","V","IV","III"]},
+  {label: "Blues 12 mesures", degrees: ["I","I","I","I","IV","IV","I","I","V","IV","I","V"]},
+];
+
+const keySel = document.getElementById("key");
+const progSel = document.getElementById("prog");
+
+KEYS.forEach(k => {
+  const o = document.createElement("option");
+  o.value = k; o.textContent = k;
+  keySel.appendChild(o);
+});
+PROGRESSIONS.forEach((p, i) => {
+  const o = document.createElement("option");
+  o.value = i; o.textContent = p.label;
+  progSel.appendChild(o);
+});
+
+function render() {
+  const key = keySel.value;
+  const prog = PROGRESSIONS[+progSel.value];
+  // cartes d'accords
+  const res = document.getElementById("result");
+  res.innerHTML = "";
+  prog.degrees.forEach(deg => {
+    const div = document.createElement("div");
+    div.className = "chord";
+    div.innerHTML = `<div class="name">${chordName(key, deg)}</div><div class="deg">${deg}</div>`;
+    res.appendChild(div);
+  });
+  // table : ligne sélectionnée
+  document.querySelectorAll("#keytable tr").forEach(tr =>
+    tr.classList.toggle("sel", tr.dataset.key === key));
+}
+
+// table des tonalités
+const tbody = document.getElementById("keytable");
+const TABLE_DEGREES = ["I","ii","iii","IV","V","vi","vii°"];
+KEYS.forEach(k => {
+  const tr = document.createElement("tr");
+  tr.dataset.key = k;
+  tr.innerHTML = "<td>" + k + "</td>" +
+    TABLE_DEGREES.map(d =>
+      `<td${DEGREE_DEFS[d].suf ? ' class="deg-min"' : ''}>${chordName(k, d)}</td>`).join("");
+  tr.addEventListener("click", () => { keySel.value = k; render(); });
+  tbody.appendChild(tr);
+});
+
+keySel.addEventListener("change", render);
+progSel.addEventListener("change", render);
+render();
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>

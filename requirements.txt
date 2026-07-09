@@ -1,0 +1,2 @@
+# Dépendances runtime rubinotes
+Django>=6.0,<7

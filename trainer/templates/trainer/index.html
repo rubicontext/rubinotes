@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecture de notes — Guitare 1ère position</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --bg: #faf8f4;
+    --accent: #2563eb;
+    --ok: #16a34a;
+    --ko: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; font-weight: normal; }
+  .topnav { display: flex; gap: 18px; margin-bottom: 10px; font-size: .95rem; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 16px; }
+  .main { width: 100%; max-width: 820px; display: flex; flex-direction: column; }
+  .card {
+    background: white;
+    border: 1px solid #e5e0d8;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    width: 100%;
+  }
+  .card.staff-card { overflow-x: auto; }
+  .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 820px;
+    width: 100%;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    gap: 8px;
+  }
+  #feedback { min-height: 1.4em; font-size: 1.1rem; text-align: center; }
+  #feedback.ok { color: var(--ok); }
+  #feedback.ko { color: var(--ko); }
+  .fretpos { cursor: pointer; touch-action: manipulation; }
+  .fretpos circle.hit { fill: transparent; stroke: transparent; }
+  .fretpos:hover circle.hit, .fretpos:active circle.hit { fill: rgba(37,99,235,.15); stroke: var(--accent); stroke-width: 1.5; }
+  .fretpos.flash-ok circle.hit { fill: rgba(22,163,74,.35); stroke: var(--ok); stroke-width: 2; }
+  .fretpos.flash-ko circle.hit { fill: rgba(220,38,38,.35); stroke: var(--ko); stroke-width: 2; }
+  .fretpos.flash-target circle.hit { fill: rgba(22,163,74,.35); stroke: var(--ok); stroke-width: 2.5; stroke-dasharray: 4 3; }
+  .note-label { display: none; pointer-events: none; }
+  .note-label circle { fill: #fff6e6; stroke: #d9c49a; stroke-width: 1; }
+  .note-label text { font-size: 11px; fill: #8a6d3b; }
+  #fretboard.show-names .note-label { display: block; }
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 8px 20px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:hover { opacity: .9; }
+  button.secondary { background: white; color: var(--accent); }
+  button.secondary.active { background: #dbeafe; }
+  .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  #fretboard { height: auto; display: block; margin: 0 auto; width: 100%; max-width: 520px; }
+  /* paysage (téléphone à l'horizontale) : portée et manche côte à côte */
+  @media (orientation: landscape) and (max-height: 540px) {
+    body { padding: 10px 12px; }
+    h1, .sub { display: none; }
+    .main { flex-direction: row; gap: 12px; align-items: flex-start; }
+    .main .card { margin-bottom: 0; }
+    .main .card.staff-card { flex: 1 1 auto; min-width: 0; }
+    .main .card.fret-card { flex: 0 1 460px; min-width: 300px; }
+    .status { margin-bottom: 8px; }
+    .actions { margin-top: 10px; }
+  }
+  @media (max-width: 600px) {
+    body { padding: 12px 8px; }
+    h1 { font-size: 1.15rem; }
+    .sub { font-size: .8rem; margin-bottom: 10px; }
+    .card { padding: 10px 8px; border-radius: 10px; margin-bottom: 12px; }
+    .status { font-size: .9rem; }
+    #feedback { font-size: 1rem; }
+    button { padding: 14px 22px; font-size: 1.05rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav"><a href="/" class="on">Lecture de notes</a><a href="/accords">Accords</a></nav>
+<h1>Lecture de notes &mdash; guitare, 1<sup>ère</sup> position</h1>
+<div class="sub">Clique sur la corde / case correspondant à la note bleue (cases 0 à 3)</div>
+
+<div class="status">
+  <span id="progress"></span>
+  <span id="feedback"></span>
+  <span id="score"></span>
+</div>
+
+<div class="main">
+  <div class="card staff-card">
+    <svg id="staff" width="760" height="240" viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="card fret-card">
+    <svg id="fretboard" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+</div>
+
+<div class="actions">
+  <button id="restart">Nouvelle série</button>
+  <button id="toggle-names" class="secondary">Afficher les notes</button>
+</div>
+
+<script>
+// ---- Notes de la 1ère position (notes naturelles, cases 0-3) ----
+// step = position diatonique sur la portée (E4 écrit = ligne du bas = 0)
+// La guitare est notée une octave au-dessus du son réel.
+const NOTES = [
+  {name:"Mi",  string:6, fret:0, step:-7},
+  {name:"Fa",  string:6, fret:1, step:-6},
+  {name:"Sol", string:6, fret:3, step:-5},
+  {name:"La",  string:5, fret:0, step:-4},
+  {name:"Si",  string:5, fret:2, step:-3},
+  {name:"Do",  string:5, fret:3, step:-2},
+  {name:"Ré",  string:4, fret:0, step:-1},
+  {name:"Mi",  string:4, fret:2, step:0},
+  {name:"Fa",  string:4, fret:3, step:1},
+  {name:"Sol", string:3, fret:0, step:2},
+  {name:"La",  string:3, fret:2, step:3},
+  {name:"Si",  string:2, fret:0, step:4},
+  {name:"Do",  string:2, fret:1, step:5},
+  {name:"Ré",  string:2, fret:3, step:6},
+  {name:"Mi",  string:1, fret:0, step:7},
+  {name:"Fa",  string:1, fret:1, step:8},
+  {name:"Sol", string:1, fret:3, step:9},
+];
+const STRING_LABELS = {1:"mi", 2:"si", 3:"sol", 4:"ré", 5:"la", 6:"mi"};
+const SEQ_LEN = 12;
+const SVGNS = "http://www.w3.org/2000/svg";
+
+// ---- Géométrie portée ----
+const BOTTOM_LINE_Y = 150;   // ligne Mi (E4 écrit)
+const HALF_STEP = 6;         // demi-interligne
+const NOTE_X0 = 100, NOTE_DX = 55;
+
+let sequence = [], current = 0, good = 0, locked = false;
+
+function el(tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  return e;
+}
+
+function noteY(step) { return BOTTOM_LINE_Y - step * HALF_STEP; }
+
+function drawStaff() {
+  const svg = document.getElementById("staff");
+  svg.innerHTML = "";
+  // 5 lignes
+  for (let i = 0; i < 5; i++) {
+    const y = BOTTOM_LINE_Y - i * 2 * HALF_STEP;
+    svg.appendChild(el("line", {x1:20, y1:y, x2:740, y2:y, stroke:"#333", "stroke-width":1}));
+  }
+  // clef de sol (centrée sur la ligne Sol)
+  const clef = el("text", {x:28, y:BOTTOM_LINE_Y + 22, "font-size":"78", fill:"#1a1a2e"});
+  clef.textContent = "\u{1D11E}";
+  svg.appendChild(clef);
+
+  sequence.forEach((note, i) => {
+    const x = NOTE_X0 + i * NOTE_DX;
+    const y = noteY(note.step);
+    const g = el("g", {id:"note-" + i, class:"note"});
+    // lignes supplémentaires
+    if (note.step <= -2) {
+      for (let s = -2; s >= note.step; s -= 2)
+        g.appendChild(el("line", {x1:x-13, y1:noteY(s), x2:x+13, y2:noteY(s), stroke:"#333", "stroke-width":1}));
+    }
+    if (note.step >= 10) {
+      for (let s = 10; s <= note.step; s += 2)
+        g.appendChild(el("line", {x1:x-13, y1:noteY(s), x2:x+13, y2:noteY(s), stroke:"#333", "stroke-width":1}));
+    }
+    // tête de note
+    const head = el("ellipse", {cx:x, cy:y, rx:7.5, ry:5.5, fill:"#1a1a2e",
+                                transform:`rotate(-15 ${x} ${y})`, class:"head"});
+    g.appendChild(head);
+    // hampe
+    const stemUp = note.step < 4;
+    const stem = stemUp
+      ? el("line", {x1:x+7, y1:y-2, x2:x+7, y2:y-36, stroke:"#1a1a2e", "stroke-width":1.6, class:"stem"})
+      : el("line", {x1:x-7, y1:y+2, x2:x-7, y2:y+36, stroke:"#1a1a2e", "stroke-width":1.6, class:"stem"});
+    g.appendChild(stem);
+    svg.appendChild(g);
+  });
+  highlightCurrent();
+}
+
+function setNoteColor(i, color) {
+  const g = document.getElementById("note-" + i);
+  if (!g) return;
+  g.querySelector(".head").setAttribute("fill", color);
+  g.querySelector(".stem").setAttribute("stroke", color);
+}
+
+function highlightCurrent() {
+  if (current >= sequence.length) return;
+  setNoteColor(current, "#2563eb");
+  // garde la note courante visible (la portée défile horizontalement sur mobile)
+  const container = document.getElementById("staff").parentElement;
+  const noteX = NOTE_X0 + current * NOTE_DX;
+  container.scrollTo({left: Math.max(0, noteX - container.clientWidth / 2), behavior: "smooth"});
+}
+
+// ---- Manche (toujours horizontal : sillet à gauche, mi aigu en haut) ----
+const H = { NUT_X: 90, FRET_W: 110, STR_Y0: 45, STR_DY: 28,
+            CENTERS: {0: 55, 1: 145, 2: 255, 3: 365} };
+
+function posOf(s, f) {
+  return {x: H.CENTERS[f], y: H.STR_Y0 + (s - 1) * H.STR_DY};
+}
+
+function drawFretboard() {
+  const svg = document.getElementById("fretboard");
+  svg.innerHTML = "";
+  drawFretboardH(svg);
+  // noms des notes naturelles (visibles via le toggle)
+  for (const n of NOTES) {
+    const p = posOf(n.string, n.fret);
+    const g = el("g", {class:"note-label"});
+    g.appendChild(el("circle", {cx:p.x, cy:p.y, r:11}));
+    const t = el("text", {x:p.x, y:p.y + 4, "text-anchor":"middle"});
+    t.textContent = n.name;
+    g.appendChild(t);
+    svg.appendChild(g);
+  }
+}
+
+function addFretPos(svg, s, f, zone) {
+  const p = posOf(s, f);
+  const g = el("g", {class:"fretpos", "data-string":s, "data-fret":f});
+  g.appendChild(el("rect", {...zone, fill:"transparent"}));
+  g.appendChild(el("circle", {cx:p.x, cy:p.y, r:13, class:"hit"}));
+  g.addEventListener("click", () => onFretClick(s, f, g));
+  svg.appendChild(g);
+}
+
+function drawFretboardH(svg) {
+  svg.setAttribute("viewBox", "0 0 480 215");
+  const topY = H.STR_Y0, botY = H.STR_Y0 + 5 * H.STR_DY;
+  svg.appendChild(el("rect", {x:H.NUT_X, y:topY-8, width:H.FRET_W*3, height:botY-topY+16,
+                              fill:"#f3e8d8", rx:3}));
+  svg.appendChild(el("rect", {x:H.NUT_X-5, y:topY-8, width:5, height:botY-topY+16, fill:"#333"}));
+  for (let f = 1; f <= 3; f++)
+    svg.appendChild(el("line", {x1:H.NUT_X+f*H.FRET_W, y1:topY-8, x2:H.NUT_X+f*H.FRET_W, y2:botY+8,
+                                stroke:"#999", "stroke-width":3}));
+  for (let f = 0; f <= 3; f++) {
+    const t = el("text", {x:H.CENTERS[f], y:22, "text-anchor":"middle", "font-size":"15", fill:"#666"});
+    t.textContent = f;
+    svg.appendChild(t);
+  }
+  for (let s = 1; s <= 6; s++) {
+    const y = H.STR_Y0 + (s-1) * H.STR_DY;
+    svg.appendChild(el("line", {x1:30, y1:y, x2:H.NUT_X+H.FRET_W*3, y2:y,
+                                stroke:"#555", "stroke-width": 0.8 + s*0.35}));
+    const t = el("text", {x:14, y:y+5, "text-anchor":"middle", "font-size":"13",
+                          fill:"#666", "font-style":"italic"});
+    t.textContent = STRING_LABELS[s];
+    svg.appendChild(t);
+    for (let f = 0; f <= 3; f++) {
+      const zoneX = f === 0 ? 25 : H.NUT_X + (f - 1) * H.FRET_W;
+      const zoneW = f === 0 ? H.NUT_X - 30 : H.FRET_W;
+      addFretPos(svg, s, f, {x:zoneX, y:y - H.STR_DY/2 + 1, width:zoneW, height:H.STR_DY - 2});
+    }
+  }
+}
+
+// ---- Logique du jeu ----
+function newSequence() {
+  sequence = [];
+  let prev = -1;
+  for (let i = 0; i < SEQ_LEN; i++) {
+    let idx;
+    do { idx = Math.floor(Math.random() * NOTES.length); } while (idx === prev);
+    prev = idx;
+    sequence.push(NOTES[idx]);
+  }
+  current = 0; good = 0; locked = false;
+  drawStaff();
+  updateStatus("");
+}
+
+function updateStatus(fbHtml, fbClass) {
+  const done = current >= sequence.length;
+  document.getElementById("progress").textContent =
+    done ? "Terminé !" : `Note ${current + 1} / ${sequence.length}`;
+  document.getElementById("score").textContent = `Score : ${good} / ${done ? sequence.length : Math.max(current,0)}`;
+  const fb = document.getElementById("feedback");
+  fb.innerHTML = fbHtml;
+  fb.className = fbClass || "";
+}
+
+function onFretClick(string, fret, g) {
+  if (locked || current >= sequence.length) return;
+  locked = true;
+  const note = sequence[current];
+  const ok = (string === note.string && fret === note.fret);
+  if (ok) {
+    good++;
+    setNoteColor(current, "#16a34a");
+    g.classList.add("flash-ok");
+    updateStatus(`&#10003; ${note.name}`, "ok");
+  } else {
+    setNoteColor(current, "#dc2626");
+    g.classList.add("flash-ko");
+    // surbrillance de la position attendue
+    const target = document.querySelector(`.fretpos[data-string="${note.string}"][data-fret="${note.fret}"]`);
+    if (target) target.classList.add("flash-target");
+    updateStatus(`&#10007; C'était ${note.name} &mdash; corde ${STRING_LABELS[note.string]}, case ${note.fret}`, "ko");
+  }
+  current++;
+  setTimeout(() => {
+    g.classList.remove("flash-ok", "flash-ko");
+    document.querySelectorAll(".flash-target").forEach(e => e.classList.remove("flash-target"));
+    locked = false;
+    highlightCurrent();
+    if (current >= sequence.length) {
+      updateStatus(good === sequence.length ? "Sans faute, bravo !" : "", good === sequence.length ? "ok" : "");
+    } else {
+      document.getElementById("progress").textContent = `Note ${current + 1} / ${sequence.length}`;
+    }
+  }, ok ? 700 : 1600); // plus long en cas d'erreur, pour voir la bonne position
+}
+
+document.getElementById("toggle-names").addEventListener("click", (e) => {
+  const fb = document.getElementById("fretboard");
+  const on = fb.classList.toggle("show-names");
+  e.target.classList.toggle("active", on);
+  e.target.textContent = on ? "Masquer les notes" : "Afficher les notes";
+});
+
+document.getElementById("restart").addEventListener("click", newSequence);
+drawFretboard();
+newSequence();
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>
