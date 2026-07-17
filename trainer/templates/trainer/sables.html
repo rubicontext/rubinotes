@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carte des sables de Maminou</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column;
+  }
+  header { padding: 10px 14px 8px; flex: 0 0 auto; }
+  .topnav { display: flex; gap: 16px; margin-bottom: 8px; font-size: .9rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.25rem; margin: 0 0 6px; font-weight: normal; }
+  .bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .85rem; }
+  .count { color: #666; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    font-family: inherit; font-size: .82rem; padding: 5px 12px;
+    border: 1px solid #ccc; background: white; color: var(--ink);
+    border-radius: 16px; cursor: pointer; touch-action: manipulation;
+  }
+  .chip.on { border-color: var(--accent); background: #eff6ff; color: var(--accent); font-weight: bold; }
+  #map { flex: 1 1 auto; width: 100%; min-height: 300px; }
+  .leaflet-popup-content { font-family: Georgia, serif; margin: 10px 12px; }
+  .pop-place { font-weight: bold; font-size: 1rem; }
+  .pop-country { color: var(--accent); font-size: .9rem; }
+  .pop-meta { color: #666; font-size: .82rem; margin-top: 4px; }
+  .pop-approx { color: #b45309; font-size: .75rem; margin-top: 4px; }
+  .dot-approx { background:#f59e0b !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="topnav">
+    <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+    <a href="/voiles">Réglage voiles</a><a href="/sables" class="on">Carte sables</a>
+  </nav>
+  <h1>🏖️ Les sables de Maminou</h1>
+  <div class="bar">
+    <span class="count" id="count">Chargement…</span>
+    <div class="filters" id="filters"></div>
+  </div>
+</header>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+const CONTINENTS = ["Afrique", "Amérique", "Asie", "Europe", "Océanie"];
+const active = new Set(CONTINENTS);
+let allData = [];
+
+const map = L.map("map", { worldCopyJump: true }).setView([25, 10], 2);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18,
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+const cluster = L.markerClusterGroup({ maxClusterRadius: 45 });
+map.addLayer(cluster);
+
+function esc(s) {
+  return (s || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+// dispersion déterministe : les sables d'un même pays s'étalent au lieu de se superposer
+function jitter(v, seed) {
+  const r = Math.sin(seed * 99991) * 43758.5453;
+  return v + ((r - Math.floor(r)) - 0.5) * 0.7;
+}
+
+const blueIcon = new L.Icon.Default();
+function approxIcon() {
+  return L.divIcon({
+    className: "",
+    html: '<div class="dot-approx" style="width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 3px rgba(0,0,0,.4)"></div>',
+    iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -7]
+  });
+}
+
+function refresh() {
+  cluster.clearLayers();
+  let shown = 0;
+  const countries = new Set();
+  allData.forEach((r, i) => {
+    if (!active.has(r.continent)) return;
+    shown++;
+    if (r.country) countries.add(r.country.trim().toUpperCase());
+    const lat = jitter(r.lat, i + 1), lon = jitter(r.lon, i + 7);
+    const m = L.marker([lat, lon]);
+    const html =
+      `<div class="pop-place">${esc(r.place) || "(lieu non précisé)"}</div>` +
+      `<div class="pop-country">${esc(r.country)} · ${esc(r.continent)}</div>` +
+      `<div class="pop-meta">${r.date ? "📅 " + esc(r.date) : ""}${r.who ? " · 👤 " + esc(r.who) : ""}</div>` +
+      '<div class="pop-approx">📍 repère au niveau du pays</div>';
+    m.bindPopup(html);
+    cluster.addLayer(m);
+  });
+  document.getElementById("count").textContent =
+    `${shown} sables · ${countries.size} pays / territoires`;
+}
+
+function buildFilters() {
+  const f = document.getElementById("filters");
+  CONTINENTS.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "chip on";
+    b.textContent = c;
+    b.addEventListener("click", () => {
+      if (active.has(c)) { active.delete(c); b.classList.remove("on"); }
+      else { active.add(c); b.classList.add("on"); }
+      refresh();
+    });
+    f.appendChild(b);
+  });
+}
+
+buildFilters();
+
+fetch("/sables.json")
+  .then(r => r.json())
+  .then(data => {
+    allData = data;
+    refresh();
+    // cadrer sur l'ensemble des marqueurs
+    if (data.length) {
+      const b = L.latLngBounds(data.map(r => [r.lat, r.lon]));
+      map.fitBounds(b.pad(0.1));
+    }
+  })
+  .catch(() => { document.getElementById("count").textContent = "Erreur de chargement des données"; });
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>

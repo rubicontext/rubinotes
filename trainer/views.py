@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from django.http import FileResponse, HttpResponse, JsonResponse
@@ -16,6 +17,22 @@ def accords(request):
 
 def voiles(request):
     return render(request, "trainer/voiles.html")
+
+
+def sables(request):
+    return render(request, "trainer/sables.html")
+
+
+def sables_data(request):
+    """Renvoie les lieux localisés (lat/lon connus), champs internes retirés."""
+    path = STATIC_DIR / "sables_geo.json"
+    recs = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+    out = [
+        {k: r[k] for k in ("continent", "country", "place", "date", "who", "lat", "lon", "precise")}
+        for r in recs
+        if r.get("lat") is not None
+    ]
+    return JsonResponse(out, safe=False)
 
 
 def manifest(request):
@@ -39,8 +56,8 @@ def manifest(request):
 
 
 SW_JS = """
-const CACHE = "guitar-notes-v3";
-const ASSETS = ["/", "/accords", "/voiles", "/icon-192.png", "/icon-512.png"];
+const CACHE = "guitar-notes-v4";
+const ASSETS = ["/", "/accords", "/voiles", "/sables", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
