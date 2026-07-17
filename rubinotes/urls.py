@@ -7,6 +7,7 @@ from trainer.views import (
     manifest,
     sables,
     sables_data,
+    sables_upload,
     service_worker,
     voiles,
 )
@@ -17,6 +18,7 @@ urlpatterns = [
     path("voiles", voiles),
     path("sables", sables),
     path("sables.json", sables_data),
+    path("sables/upload", sables_upload),
     path("manifest.webmanifest", manifest),
     path("sw.js", service_worker),
     path("icon-192.png", icon, {"size": 192}),

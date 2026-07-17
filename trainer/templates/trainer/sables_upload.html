@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ajouter des sables — import du tableur</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --ok:#16a34a; --warn:#b45309; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 24px 16px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .topnav { display: flex; gap: 16px; margin-bottom: 10px; font-size: .95rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; font-weight: normal; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 16px; text-align: center; max-width: 560px; }
+  .card {
+    background: white; border: 1px solid #e5e0d8; border-radius: 12px;
+    padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    max-width: 560px; width: 100%;
+  }
+  input[type=file] { font-family: inherit; font-size: 1rem; width: 100%; margin-bottom: 16px; }
+  button {
+    font-family: inherit; font-size: 1.05rem; padding: 11px 24px;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: 8px; cursor: pointer; touch-action: manipulation;
+  }
+  button:hover { opacity: .9; }
+  .note { font-size: .82rem; color: #999; margin-top: 12px; line-height: 1.5; }
+  .error { color: #dc2626; font-weight: bold; margin-bottom: 12px; }
+  .result { line-height: 1.7; }
+  .result .big { font-size: 1.15rem; }
+  .result .add { color: var(--ok); font-weight: bold; }
+  .result .warn { color: var(--warn); }
+  .actions { margin-top: 14px; display: flex; gap: 12px; }
+  .btn-link {
+    display: inline-block; text-decoration: none; font-size: 1.05rem; padding: 11px 24px;
+    border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); background: white;
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+  <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
+  <a href="/sables/upload" class="on">Ajouter</a>
+</nav>
+
+<h1>➕ Ajouter des sables</h1>
+<div class="sub">
+  Envoie ton tableur (<b>.ods</b> ou <b>.xlsx</b>), même structure que le fichier d'origine
+  (une feuille par continent, colonnes région / pays / lieu / date / qui).
+  Seuls les <b>nouveaux</b> lieux sont ajoutés — rien n'est jamais supprimé.
+</div>
+
+{% if result %}
+<div class="card">
+  <div class="result">
+    <div class="big">✅ Import terminé</div>
+    <div>{{ result.read }} lignes lues dans le fichier.</div>
+    <div class="add">+ {{ result.added }} sable(s) ajouté(s)</div>
+    <div>{{ result.dup }} déjà présent(s) (ignorés)</div>
+    {% if result.unlocated %}<div class="warn">⚠ {{ result.unlocated }} pays non reconnu(s) — non affichés sur la carte</div>{% endif %}
+    <div style="margin-top:8px;color:#666">Total sur la carte : <b>{{ result.total }}</b> sables.</div>
+  </div>
+  <div class="actions">
+    <a class="btn-link" href="/sables">Voir la carte →</a>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form method="post" action="/sables/upload" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".ods,.xlsx" required>
+    <button type="submit">Importer le fichier</button>
+  </form>
+  <div class="note">
+    Astuce : réutilise directement ton fichier « SABLES V2 VF.ods » — ajoute tes nouvelles
+    lignes dedans puis renvoie-le ici. Les lieux déjà connus ne seront pas dupliqués.
+    Si un pays n'est pas reconnu, dis-le moi et je l'ajoute à la carte.
+  </div>
+</div>
+
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>
