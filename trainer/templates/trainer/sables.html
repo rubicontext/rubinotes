@@ -69,10 +69,27 @@ const active = new Set(CONTINENTS);
 let allData = [];
 
 const map = L.map("map", { worldCopyJump: true }).setView([25, 10], 2);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 18,
-  attribution: "&copy; OpenStreetMap"
-}).addTo(map);
+
+// Fonds de carte avec libellés en caractères latins (anglais) — pas d'arabe/local
+const esriStreet = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom: 18, attribution: "Tiles &copy; Esri" });
+const esriTopo = L.tileLayer(
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+  { maxZoom: 18, attribution: "Tiles &copy; Esri" });
+const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18, attribution: "&copy; OpenStreetMap (noms locaux)"
+});
+
+esriStreet.addTo(map);   // fond par défaut : noms en anglais/latin
+L.control.layers(
+  { "Plan (anglais)": esriStreet, "Relief (anglais)": esriTopo, "OpenStreetMap (local)": osm },
+  null, { position: "bottomright" }
+).addTo(map);
+
+// corrige le léger décalage : recalcule la taille une fois le layout flex posé
+setTimeout(() => map.invalidateSize(), 200);
+window.addEventListener("resize", () => map.invalidateSize());
 
 const cluster = L.markerClusterGroup({ maxClusterRadius: 45 });
 map.addLayer(cluster);
@@ -140,6 +157,7 @@ fetch("/sables.json")
   .then(data => {
     allData = data;
     refresh();
+    map.invalidateSize();
     // cadrer sur l'ensemble des marqueurs
     if (data.length) {
       const b = L.latLngBounds(data.map(r => [r.lat, r.lon]));
