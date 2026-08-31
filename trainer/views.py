@@ -114,7 +114,7 @@ def manifest(request):
 
 
 SW_JS = """
-const CACHE = "guitar-notes-v7";
+const CACHE = "guitar-notes-v8";
 const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/echecs", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {

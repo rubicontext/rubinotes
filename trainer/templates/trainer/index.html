@@ -84,9 +84,12 @@
   button.secondary.active { background: #dbeafe; }
   .actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   #fretboard { height: auto; display: block; margin: 0 auto; width: 100%; max-width: 720px; }
-  .strsel { display: flex; align-items: center; gap: 14px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
-  .strsel label { font-size: .95rem; color: #555; }
-  .strsel input[type="range"] { width: 180px; accent-color: var(--accent); }
+  .strsel { display: flex; align-items: center; gap: 12px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+  .strsel .lbl { font-size: .95rem; color: #555; }
+  .strbox { display: inline-flex; align-items: center; gap: 4px; font-size: .95rem; color: #555;
+            cursor: pointer; touch-action: manipulation; }
+  .strbox input { accent-color: var(--accent); width: 17px; height: 17px; cursor: pointer; }
+  .strbox span { font-style: italic; }
   .string-off { opacity: .22; }
   /* paysage (téléphone à l'horizontale) : portée et manche côte à côte */
   @media (orientation: landscape) and (max-height: 540px) {
@@ -114,7 +117,7 @@
 
 <nav class="topnav"><a href="/" class="on">Lecture de notes</a><a href="/accords">Accords</a><a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a><a href="/echecs">Échecs</a></nav>
 <h1>Lecture de notes &mdash; guitare, 1<sup>ère</sup> position</h1>
-<div class="sub">Clique sur la corde / case correspondant à la note bleue (cases 0 à 3)</div>
+<div class="sub">Clique sur la corde / case correspondant à la note surlignée (cases 0 à 3)</div>
 
 <div class="status">
   <span id="progress"></span>
@@ -129,9 +132,18 @@
 
   <div class="card fret-card">
     <svg id="fretboard" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="strsel" id="string-boxes">
+      <span class="lbl">Cordes&nbsp;:</span>
+      <!-- une case par corde, de la plus grave à la plus aiguë -->
+      <label class="strbox"><input type="checkbox" data-s="6"><span></span></label>
+      <label class="strbox"><input type="checkbox" data-s="5"><span></span></label>
+      <label class="strbox"><input type="checkbox" data-s="4"><span></span></label>
+      <label class="strbox"><input type="checkbox" data-s="3"><span></span></label>
+      <label class="strbox"><input type="checkbox" data-s="2"><span></span></label>
+      <label class="strbox"><input type="checkbox" data-s="1"><span></span></label>
+    </div>
     <div class="strsel">
-      <label for="exclude">Cordes graves exclues&nbsp;: <strong id="exclval">aucune</strong></label>
-      <input type="range" id="exclude" min="0" max="3" value="0" step="1">
+      <label class="strbox"><input type="checkbox" id="colorstrings"><span>Couleur de corde</span></label>
     </div>
   </div>
 </div>
@@ -219,15 +231,16 @@ function drawStaff() {
       for (let s = 10; s <= note.step; s += 2)
         g.appendChild(el("line", {x1:x-13, y1:noteY(s), x2:x+13, y2:noteY(s), stroke:"#333", "stroke-width":1}));
     }
-    // tête de note
-    const head = el("ellipse", {cx:x, cy:y, rx:7.5, ry:5.5, fill:"#1a1a2e",
+    // tête de note (teintée par corde si l'assistance couleur est active)
+    const ink = noteInk(note);
+    const head = el("ellipse", {cx:x, cy:y, rx:7.5, ry:5.5, fill:ink,
                                 transform:`rotate(-15 ${x} ${y})`, class:"head"});
     g.appendChild(head);
     // hampe
     const stemUp = note.step < 4;
     const stem = stemUp
-      ? el("line", {x1:x+7, y1:y-2, x2:x+7, y2:y-36, stroke:"#1a1a2e", "stroke-width":1.6, class:"stem"})
-      : el("line", {x1:x-7, y1:y+2, x2:x-7, y2:y+36, stroke:"#1a1a2e", "stroke-width":1.6, class:"stem"});
+      ? el("line", {x1:x+7, y1:y-2, x2:x+7, y2:y-36, stroke:ink, "stroke-width":1.6, class:"stem"})
+      : el("line", {x1:x-7, y1:y+2, x2:x-7, y2:y+36, stroke:ink, "stroke-width":1.6, class:"stem"});
     g.appendChild(stem);
     svg.appendChild(g);
   });
@@ -253,21 +266,55 @@ function annotateNote(i, color) {
 
 function highlightCurrent() {
   if (current >= sequence.length) return;
-  setNoteColor(current, "#2563eb");
+  if (colorStrings) {
+    // la note garde sa couleur de corde: on l'entoure d'un anneau bleu
+    const g = document.getElementById("note-" + current);
+    if (g && !g.querySelector(".cur-ring")) {
+      const note = sequence[current];
+      g.appendChild(el("circle", {cx: NOTE_X0 + current * NOTE_DX, cy: noteY(note.step), r: 13,
+                                  fill: "none", stroke: "#2563eb", "stroke-width": 2.5, class: "cur-ring"}));
+    }
+  } else {
+    setNoteColor(current, "#2563eb");
+  }
   // garde la note courante visible (la portée défile horizontalement sur mobile)
   const container = document.getElementById("staff").parentElement;
   const noteX = NOTE_X0 + current * NOTE_DX;
   container.scrollTo({left: Math.max(0, noteX - container.clientWidth / 2), behavior: "smooth"});
 }
 
+function removeCurrentRing(i) {
+  const ring = document.querySelector("#note-" + i + " .cur-ring");
+  if (ring) ring.remove();
+}
+
 // ---- Manche (toujours horizontal : sillet à gauche, mi aigu en haut) ----
 const H = { NUT_X: 90, FRET_W: 110, STR_Y0: 45, STR_DY: 28,
             CENTERS: {0: 55, 1: 145, 2: 255, 3: 365} };
 
-// nombre de cordes graves exclues (0-3 : mi, la, ré), persistant
-let excluded = Math.min(3, Math.max(0, +(localStorage.getItem("excl") || 0)));
+// ---- Sélection des cordes (une case par corde), persistante ----
+// migration depuis l'ancien réglage "excl" (n cordes graves exclues)
+function loadActiveStrings() {
+  const saved = localStorage.getItem("strings");
+  if (saved) {
+    try {
+      const arr = JSON.parse(saved).filter(s => s >= 1 && s <= 6);
+      if (arr.length) return new Set(arr);
+    } catch (e) { /* valeur corrompue: repartir du défaut */ }
+  }
+  const excl = Math.min(3, Math.max(0, +(localStorage.getItem("excl") || 0)));
+  const set = new Set();
+  for (let s = 1; s <= 6 - excl; s++) set.add(s);
+  return set;
+}
+let activeStrings = loadActiveStrings();
 
-function isStringOff(s) { return s > 6 - excluded; }
+// ---- Couleur de corde (assistance débutant), persistante ----
+const STRING_COLORS = {1:"#e8590c", 2:"#9333ea", 3:"#0d9488", 4:"#db2777", 5:"#ca8a04", 6:"#475569"};
+let colorStrings = localStorage.getItem("strcolor") === "1";
+function noteInk(n) { return colorStrings ? STRING_COLORS[n.string] : "#1a1a2e"; }
+
+function isStringOff(s) { return !activeStrings.has(s); }
 function allowedNotes() { return NOTES.filter(n => !isStringOff(n.string)); }
 
 function posOf(s, f) {
@@ -316,11 +363,14 @@ function drawFretboardH(svg) {
   for (let s = 1; s <= 6; s++) {
     const y = H.STR_Y0 + (s-1) * H.STR_DY;
     const off = isStringOff(s);
+    const strInk = colorStrings ? STRING_COLORS[s] : "#555";
     svg.appendChild(el("line", {x1:30, y1:y, x2:H.NUT_X+H.FRET_W*3, y2:y,
-                                stroke:"#555", "stroke-width": 0.8 + s*0.35,
+                                stroke:strInk, "stroke-width": (colorStrings ? 1.4 : 0.8) + s*0.35,
                                 class: off ? "string-off" : ""}));
     const t = el("text", {x:14, y:y+5, "text-anchor":"middle", "font-size":"13",
-                          fill:"#666", "font-style":"italic", class: off ? "string-off" : ""});
+                          fill:(colorStrings ? STRING_COLORS[s] : "#666"), "font-style":"italic",
+                          "font-weight": colorStrings ? "bold" : "normal",
+                          class: off ? "string-off" : ""});
     t.textContent = strName(s);
     svg.appendChild(t);
     if (off) continue; // corde exclue : ni zone cliquable ni note dessus
@@ -365,6 +415,7 @@ function onFretClick(string, fret, g) {
   if (locked || current >= sequence.length) return;
   locked = true;
   const note = sequence[current];
+  removeCurrentRing(current);
   const ok = (string === note.string && fret === note.fret);
   if (ok) {
     good++;
@@ -403,18 +454,58 @@ document.getElementById("toggle-names").addEventListener("click", (e) => {
   e.target.textContent = on ? "Masquer les notes" : "Afficher les notes";
 });
 
-// slider d'exclusion des cordes graves
-const EXCL_LABELS = ["aucune", "mi grave", "mi + la", "mi + la + ré"];
-function applyExcluded() {
-  document.getElementById("exclude").value = excluded;
-  document.getElementById("exclval").textContent = EXCL_LABELS[excluded];
+// ---- Cases à cocher: une par corde (au moins une doit rester active) ----
+function stringBoxes() { return document.querySelectorAll('#string-boxes input[data-s]'); }
+
+function syncStringBoxes() {
+  stringBoxes().forEach(box => {
+    const s = +box.dataset.s;
+    box.checked = activeStrings.has(s);
+    const label = box.nextElementSibling;
+    label.textContent = strName(s);
+    label.style.color = colorStrings ? STRING_COLORS[s] : "";
+    label.style.fontWeight = colorStrings ? "bold" : "";
+  });
+}
+
+function applyStrings() {
+  localStorage.setItem("strings", JSON.stringify([...activeStrings]));
+  syncStringBoxes();
   drawFretboard();
   newSequence();
 }
-document.getElementById("exclude").addEventListener("input", (e) => {
-  excluded = +e.target.value;
-  localStorage.setItem("excl", excluded);
-  applyExcluded();
+
+stringBoxes().forEach(box => box.addEventListener("change", () => {
+  const s = +box.dataset.s;
+  if (box.checked) {
+    activeStrings.add(s);
+  } else if (activeStrings.size > 1) {
+    activeStrings.delete(s);
+  } else {
+    box.checked = true; // toujours au moins une corde active
+    return;
+  }
+  applyStrings();
+}));
+
+// ---- Couleur de corde (assistance débutant) ----
+const colorBox = document.getElementById("colorstrings");
+colorBox.checked = colorStrings;
+colorBox.addEventListener("change", () => {
+  colorStrings = colorBox.checked;
+  localStorage.setItem("strcolor", colorStrings ? "1" : "0");
+  syncStringBoxes();
+  drawFretboard();
+  // recolore la portée en place, sans perdre la série en cours:
+  // notes déjà jouées inchangées (vert/rouge), notes à venir re-teintées
+  sequence.forEach((note, i) => {
+    if (i > current) setNoteColor(i, noteInk(note));
+  });
+  if (current < sequence.length) {
+    removeCurrentRing(current);
+    if (colorStrings) setNoteColor(current, noteInk(sequence[current]));
+    highlightCurrent();
+  }
 });
 
 // toggle notation FR / EN
@@ -426,6 +517,7 @@ document.getElementById("toggle-notation").addEventListener("click", () => {
   notation = notation === "fr" ? "en" : "fr";
   localStorage.setItem("notation", notation);
   updateNotationButton();
+  syncStringBoxes();
   drawFretboard();
   // met à jour les annotations déjà affichées sur la portée
   document.querySelectorAll("#staff .ann").forEach(t => {
@@ -436,7 +528,7 @@ document.getElementById("toggle-notation").addEventListener("click", () => {
 updateNotationButton();
 
 document.getElementById("restart").addEventListener("click", newSequence);
-applyExcluded();
+applyStrings();
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
 </script>
