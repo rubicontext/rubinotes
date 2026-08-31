@@ -24,6 +24,10 @@ def voiles(request):
     return render(request, "trainer/voiles.html")
 
 
+def echecs(request):
+    return render(request, "trainer/echecs.html")
+
+
 def sables(request):
     return render(request, "trainer/sables.html")
 
@@ -110,8 +114,8 @@ def manifest(request):
 
 
 SW_JS = """
-const CACHE = "guitar-notes-v6";
-const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/icon-192.png", "/icon-512.png"];
+const CACHE = "guitar-notes-v7";
+const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/echecs", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));

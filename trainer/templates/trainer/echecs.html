@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ouvertures aux échecs — les bases</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --light:#f0d9b5; --dark:#b58863; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 16px 14px 40px;
+  }
+  .topnav { display: flex; gap: 14px; margin-bottom: 12px; font-size: .9rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; font-weight: normal; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 18px; max-width: 720px; }
+  h2 { font-size: 1.1rem; color: var(--accent); margin: 26px 0 10px; font-weight: normal; border-bottom: 1px solid #e5e0d8; padding-bottom: 4px; }
+
+  .principes { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 14px 18px; max-width: 720px; }
+  .principes li { margin: 6px 0; line-height: 1.5; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: white; border: 1px solid #e5e0d8; border-radius: 12px;
+    padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  }
+  .card h3 { margin: 0 0 2px; font-size: 1.05rem; }
+  .card .coups { color: var(--accent); font-size: .92rem; margin-bottom: 8px; }
+  .card .idee { font-size: .88rem; line-height: 1.5; margin: 8px 0 0; }
+  .card .astuce { font-size: .82rem; color: #8a6d3b; background: #fdf6e3; border-radius: 6px; padding: 6px 9px; margin-top: 8px; line-height: 1.45; }
+
+  .board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 264px;
+           border: 2px solid #8b7355; border-radius: 4px; overflow: hidden; margin: 4px auto; }
+  .sq { aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+        font-size: clamp(18px, 5.6vw, 24px); line-height: 1;
+        font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif; }
+  .sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+  <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
+  <a href="/echecs" class="on">Échecs</a>
+</nav>
+
+<h1>♟️ Les ouvertures aux échecs</h1>
+<div class="sub">
+  Les ouvertures incontournables pour débuter : quelques coups à connaître, et surtout
+  <b>l'idée</b> derrière chacune. Notation française : R = Roi, D = Dame, T = Tour, F = Fou, C = Cavalier.
+</div>
+
+<h2>Les principes avant les coups</h2>
+<ol class="principes">
+  <li><b>Contrôler le centre</b> (cases e4, d4, e5, d5) avec les pions et les pièces.</li>
+  <li><b>Développer les pièces mineures</b> (cavaliers puis fous) avant de bouger deux fois la même pièce.</li>
+  <li><b>Roquer tôt</b> pour mettre le roi à l'abri et connecter les tours.</li>
+  <li><b>Ne pas sortir la dame trop tôt</b> : elle devient une cible et fait perdre des temps.</li>
+  <li><b>Chaque coup a un but</b> : développement, contrôle du centre ou menace concrète.</li>
+</ol>
+
+<h2>Avec les Blancs</h2>
+<div class="cards">
+  <div class="card">
+    <h3>L'Italienne</h3>
+    <div class="coups">1. e4 e5 2. Cf3 Cc6 3. Fc4</div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> développement rapide et naturel. Le fou vise f7, la case la plus fragile
+    des Noirs (défendue seulement par le roi). On continue avec c3 + d4, ou d3 et le roque.</p>
+    <div class="astuce">💡 L'ouverture idéale pour apprendre : tous les coups sont logiques et suivent les principes.</div>
+  </div>
+
+  <div class="card">
+    <h3>L'Espagnole (Ruy Lopez)</h3>
+    <div class="coups">1. e4 e5 2. Cf3 Cc6 3. Fb5</div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> le fou attaque le cavalier c6, défenseur du pion e5 — pression durable
+    sur le centre. L'ouverture la plus jouée au haut niveau depuis des siècles.</p>
+    <div class="astuce">💡 Après 3…a6, on peut jouer simplement 4. Fxc6 (échange) puis 5. d4 : facile à comprendre.</div>
+  </div>
+
+  <div class="card">
+    <h3>L'Écossaise</h3>
+    <div class="coups">1. e4 e5 2. Cf3 Cc6 3. d4</div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R"></div>
+    <p class="idee"><b>L'idée :</b> ouvrir le centre tout de suite. Après 3…exd4 4. Cxd4, les Blancs ont
+    un cavalier centralisé et un jeu libre, sans théorie compliquée.</p>
+    <div class="astuce">💡 Parfaite si tu veux éviter les longues lignes de l'Espagnole tout en jouant au centre.</div>
+  </div>
+
+  <div class="card">
+    <h3>Le Gambit Dame</h3>
+    <div class="coups">1. d4 d5 2. c4</div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> offrir le pion c4 pour détourner le pion d5 et dominer le centre.
+    Ce n'est pas un vrai sacrifice : le pion se récupère presque toujours.</p>
+    <div class="astuce">💡 Si les Noirs prennent (2…dxc4), joue 3. e3 ou 3. e4 puis reprends le pion avec le fou.</div>
+  </div>
+
+  <div class="card">
+    <h3>Le Système de Londres</h3>
+    <div class="coups">1. d4 d5 2. Ff4</div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR"></div>
+    <p class="idee"><b>L'idée :</b> un « système » : les mêmes coups presque quelle que soit la réponse
+    (Ff4, e3, Fd3, Cf3, Cbd2, c3). Structure solide en pyramide, très peu de théorie à apprendre.</p>
+    <div class="astuce">💡 Le choix des débutants (et de beaucoup de forts joueurs) pour jouer d4 sans mémoriser des lignes.</div>
+  </div>
+</div>
+
+<h2>Avec les Noirs — contre 1. e4</h2>
+<div class="cards">
+  <div class="card">
+    <h3>La Sicilienne</h3>
+    <div class="coups">1. e4 c5</div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> combattre le centre de côté, sans symétrie : les Noirs jouent pour gagner.
+    La réponse la plus populaire à e4, riche mais exigeante.</p>
+    <div class="astuce">💡 En débutant, garde un schéma simple : c5, d6, Cf6, g6, Fg7 (le « dragon accéléré » sans théorie).</div>
+  </div>
+
+  <div class="card">
+    <h3>La Française</h3>
+    <div class="coups">1. e4 e6 (puis 2…d5)</div>
+    <div class="board" data-fen="rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> préparer d5 pour défier e4 avec un pion soutenu. Position solide,
+    plans clairs : attaquer la chaîne de pions blanche avec c5 puis f6.</p>
+    <div class="astuce">💡 Son seul défaut : le fou c8 enfermé. Pense à l'activer (b6 + Fa6, ou après f6).</div>
+  </div>
+
+  <div class="card">
+    <h3>La Caro-Kann</h3>
+    <div class="coups">1. e4 c6 (puis 2…d5)</div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> comme la Française (préparer d5), mais le fou c8 pourra sortir
+    avant de fermer la structure. Réputée ultra-solide, peu de mauvaises surprises.</p>
+    <div class="astuce">💡 Excellent premier répertoire noir : des positions saines qu'on comprend vite.</div>
+  </div>
+</div>
+
+<h2>Avec les Noirs — contre 1. d4</h2>
+<div class="cards">
+  <div class="card">
+    <h3>Le Gambit Dame refusé</h3>
+    <div class="coups">1. d4 d5 2. c4 e6</div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> soutenir d5 au lieu de prendre en c4 : le centre tient. Développement
+    naturel : Cf6, Fe7, roque. La défense la plus classique et la plus saine contre d4.</p>
+    <div class="astuce">💡 Même remarque que la Française : le fou c8 sort en dernier — sois-en conscient et échange-le si possible.</div>
+  </div>
+</div>
+
+<script>
+// Rendu d'un échiquier depuis un FEN (position seule) en Unicode — zéro dépendance
+const GLYPHS = {
+  K:"♔", Q:"♕", R:"♖", B:"♗", N:"♘", P:"♙",
+  k:"♚", q:"♛", r:"♜", b:"♝", n:"♞", p:"♟",
+};
+document.querySelectorAll(".board").forEach(board => {
+  const rows = board.dataset.fen.split("/");
+  rows.forEach((row, r) => {
+    let file = 0;
+    for (const ch of row) {
+      if (/\d/.test(ch)) {
+        for (let i = 0; i < +ch; i++) { addSquare(board, r, file, ""); file++; }
+      } else {
+        addSquare(board, r, file, GLYPHS[ch] || "");
+        file++;
+      }
+    }
+  });
+});
+function addSquare(board, r, f, glyph) {
+  const sq = document.createElement("div");
+  sq.className = "sq " + (((r + f) % 2 === 0) ? "l" : "d");
+  sq.textContent = glyph;
+  board.appendChild(sq);
+}
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>
