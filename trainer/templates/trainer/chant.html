@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chant — exercices pour travailler la voix</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --ok:#16a34a; --warn:#b45309; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 16px 14px 50px;
+  }
+  .topnav { display: flex; gap: 14px; margin-bottom: 12px; font-size: .9rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; font-weight: normal; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 16px; max-width: 760px; }
+  h2 { font-size: 1.1rem; color: var(--accent); margin: 26px 0 10px; font-weight: normal; border-bottom: 1px solid #e5e0d8; padding-bottom: 4px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card { background: white; border: 1px solid #e5e0d8; border-radius: 12px; padding: 13px 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+  .card h3 { margin: 0 0 6px; font-size: 1rem; }
+  .card p { font-size: .88rem; line-height: 1.5; margin: 6px 0; }
+  .tip { font-size: .8rem; color: #8a6d3b; background: #fdf6e3; border-radius: 6px; padding: 5px 9px; margin-top: 7px; line-height: 1.45; }
+  .warn { background: #fff1f0; border: 1px solid #f5c6c6; border-radius: 10px; padding: 10px 14px; color: #a13030; font-size: .9rem; max-width: 760px; }
+  table { border-collapse: collapse; background: white; font-size: .88rem; }
+  th, td { border: 1px solid #e5e0d8; padding: 6px 12px; text-align: left; }
+  th { background: #eff6ff; font-weight: normal; color: var(--accent); }
+
+  button.play {
+    font-family: inherit; font-size: .85rem; padding: 6px 12px; margin: 3px 4px 3px 0;
+    border: 1px solid var(--accent); background: white; color: var(--accent);
+    border-radius: 8px; cursor: pointer; touch-action: manipulation;
+  }
+  button.play:hover, button.play:active { background: #dbeafe; }
+  button.play.primary { background: var(--accent); color: white; }
+  .noterow { display: flex; flex-wrap: wrap; gap: 2px; margin: 6px 0; }
+  .noterow button.play { min-width: 44px; text-align: center; margin: 0 2px 4px 0; }
+  .octsel { font-size: .82rem; color: #555; margin: 4px 0; }
+  .octsel label { margin-right: 10px; cursor: pointer; }
+  #mystere-nom { font-size: .95rem; color: var(--ok); font-weight: bold; min-height: 1.3em; display: inline-block; margin-left: 8px; }
+  .links a { color: var(--accent); }
+  .links li { margin: 5px 0; font-size: .9rem; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+  <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
+  <a href="/echecs">Échecs</a><a href="/chant" class="on">Chant</a>
+</nav>
+
+<h1>🎤 Exercices de chant</h1>
+<div class="sub">
+  Une séance progressive : <b>souffle → échauffement → justesse → technique</b>, puis une chanson dans ta tessiture.
+  Les boutons <b style="color:var(--accent)">▶</b> jouent des sons de référence générés par le navigateur (monte le volume 🙂).
+</div>
+
+<div class="warn">⚠️ <b>Règle d'or : jamais de douleur.</b> Si ça gratte, serre ou racle — tu arrêtes. Eau à portée de main,
+et régularité (15-20 min/jour) plutôt qu'une longue séance rare.</div>
+
+<h2>A. Respiration &amp; soutien (le moteur)</h2>
+<div class="cards">
+  <div class="card"><h3>1. Le « sssss » régulier</h3>
+    <p>Inspire par le nez (le <b>ventre</b> gonfle, pas les épaules) sur 4 temps, puis souffle un
+    « sssss » le plus long et <b>constant</b> possible — débit régulier, pas tout d'un coup.</p>
+    <div class="tip">5 répétitions, cherche à allonger la durée à chaque fois.</div></div>
+  <div class="card"><h3>2. Le compte expiré</h3>
+    <p>Inspire, puis compte à voix chuchotée « 1… 2… 3… » le plus loin possible sur une seule
+    expiration, à volume égal. Contrôle du souffle.</p></div>
+  <div class="card"><h3>3. Le souffle saccadé « tch-tch-tch »</h3>
+    <p>Petites expulsions d'air rapides par le ventre (comme un rire silencieux). Tu sens les abdos
+    travailler : c'est ton <b>soutien</b>.</p></div>
+</div>
+
+<h2>B. Échauffement (5-10 min, jamais sauté)</h2>
+<div class="cards">
+  <div class="card"><h3>4. Les bulles de lèvres (lip trills)</h3>
+    <p>Fais vibrer tes lèvres (« brrrr » du cheval) en montant puis descendant en glissando.
+    Relâche tout, ça décrispe la voix.</p>
+    <div class="tip">4-5 montées/descentes.</div></div>
+  <div class="card"><h3>5. Les sirènes</h3>
+    <p>Sur un « ouuu » ou « mmm », glisse du grave vers l'aigu et redescends, doux et lié, sans à-coups.</p>
+    <button class="play" id="sirene">▶ Exemple de sirène</button></div>
+  <div class="card"><h3>6. Le humming (bourdonnement)</h3>
+    <p>Bouche fermée, « mmmm » : sens les vibrations sur les lèvres et le nez. Bouge légèrement la
+    hauteur. Place la résonance sans forcer.</p></div>
+  <div class="card"><h3>7. Le « ng »</h3>
+    <p>Comme la fin de « parki<b>ng</b> ». Chante-le en sirène : ça ouvre le fond de gorge et
+    connecte le souffle.</p></div>
+</div>
+
+<h2>C. Justesse (l'oreille) — avec sons de référence</h2>
+<div class="cards">
+  <div class="card"><h3>8. Imiter des notes</h3>
+    <p>Joue une note, chante-la sur « ah », vérifie (accordeur ou oreille). 8-10 notes différentes par séance.</p>
+    <div class="octsel">
+      Octave :
+      <label><input type="radio" name="oct" value="3" checked> grave (voix d'homme)</label>
+      <label><input type="radio" name="oct" value="4"> aiguë (voix de femme)</label>
+    </div>
+    <div class="noterow" id="notes-row"></div>
+    <p style="margin-top:8px;">
+      <button class="play primary" id="mystere">🎲 Note mystère</button>
+      <button class="play" id="reveler">Révéler</button>
+      <span id="mystere-nom"></span>
+    </p>
+    <div class="tip">Note mystère : écoute, chante-la, puis « Révéler » (et rejoue-la pour vérifier).</div></div>
+  <div class="card"><h3>9. La gamme lente</h3>
+    <p>Do-Ré-Mi-Fa-Sol-Fa-Mi-Ré-Do sur « la » ou « na », lentement, chaque note bien juste.
+    Puis monte d'un demi-ton et recommence.</p>
+    <button class="play primary" id="gamme">▶ Jouer la gamme</button>
+    <button class="play" id="gamme-moins">-½ ton</button>
+    <button class="play" id="gamme-plus">+½ ton</button>
+    <span style="font-size:.82rem;color:#555;" id="gamme-base"></span></div>
+  <div class="card"><h3>10. Les intervalles</h3>
+    <p>Chante 2 notes espacées (do → sol par ex.) et vérifie la justesse. L'oreille apprend à
+    « viser » la note avant de la produire.</p>
+    <button class="play" id="quinte">▶ Do → Sol (quinte)</button>
+    <button class="play" id="tierce">▶ Do → Mi (tierce)</button>
+    <button class="play" id="octaveiv">▶ Do → Do (octave)</button></div>
+</div>
+
+<h2>D. Agilité &amp; articulation</h2>
+<div class="cards">
+  <div class="card"><h3>11. Le « mi-mè-ma-mo-mou »</h3>
+    <p>Sur une même note, enchaîne les 5 voyelles en gardant un son homogène. Puis sur une petite
+    gamme montante. Égalise les voyelles.</p></div>
+  <div class="card"><h3>12. Les staccatos « ha-ha-ha »</h3>
+    <p>Petites notes détachées et légères sur « ha », soutenues par le ventre (pas la gorge),
+    sur une gamme montante.</p>
+    <button class="play" id="staccato">▶ Exemple de staccato</button></div>
+  <div class="card"><h3>13. Le « 9-8-7… » descendant</h3>
+    <p>Chante « 9-8-7-6-5-4-3-2-1 » sur une gamme descendante, une note par chiffre.
+    Classique et efficace pour l'agilité et la justesse.</p>
+    <button class="play" id="descente">▶ Gamme descendante</button></div>
+</div>
+
+<h2>E. Résonance &amp; voix de tête (plus tard)</h2>
+<div class="cards">
+  <div class="card"><h3>14. Le « gouuu / wouuu »</h3>
+    <p>En sirène vers l'aigu, la voix bascule naturellement en voix de tête (plus légère).
+    Explore la transition sans forcer.</p></div>
+  <div class="card"><h3>15. La paille (straw phonation)</h3>
+    <p>Chante en soufflant dans une paille (dans un verre d'eau = bulles), en montant/descendant.
+    Redoutable pour reposer <i>et</i> muscler la voix en douceur.</p></div>
+</div>
+
+<h2>Routine type (~20 min)</h2>
+<table>
+  <tr><th>Bloc</th><th>Exercices</th><th>Durée</th></tr>
+  <tr><td>Souffle</td><td>1 + 3</td><td>4 min</td></tr>
+  <tr><td>Échauffement</td><td>4 + 5 + 6</td><td>6 min</td></tr>
+  <tr><td>Justesse</td><td>8 + 9</td><td>5 min</td></tr>
+  <tr><td>Technique</td><td>11 + 13</td><td>4 min</td></tr>
+  <tr><td>Chanson</td><td>un morceau dans ta tessiture</td><td>libre</td></tr>
+</table>
+
+<h2>Erreurs classiques du débutant</h2>
+<div class="cards">
+  <div class="card"><p>1. <b>Chanter avec la gorge</b> (voix serrée, fatigue) au lieu du souffle.<br>
+  2. <b>Sauter l'échauffement</b> → justesse et endurance en souffrent.<br>
+  3. <b>Trop fort / trop aigu</b> tout de suite.</p></div>
+  <div class="card"><p>4. <b>Ne jamais s'enregistrer</b> → on ne corrige pas ce qu'on n'entend pas.<br>
+  5. <b>Se crisper</b> (épaules, mâchoire, cou).<br>
+  6. <b>Forcer quand ça fait mal</b> : la douleur = stop.</p></div>
+</div>
+
+<h2>Vidéos &amp; applis utiles</h2>
+<ul class="links">
+  <li>🎬 YouTube : <a href="https://www.youtube.com/results?search_query=vocal+warm+up+10+minutes" target="_blank" rel="noopener">échauffement vocal guidé 10 min</a>
+      · <a href="https://www.youtube.com/results?search_query=cours+de+chant+d%C3%A9butant" target="_blank" rel="noopener">cours de chant débutant</a>
+      · <a href="https://www.youtube.com/results?search_query=straw+phonation+exercise" target="_blank" rel="noopener">exercice de la paille (SOVT)</a></li>
+  <li>📱 Applis : Vocaberry, Sing Sharp, Vanido — ou un simple accordeur chromatique + l'exercice « note mystère » ci-dessus.</li>
+  <li>🎸 Rappel : le <a href="/accords">capo à la guitare</a> transpose n'importe quelle chanson dans ta tessiture.</li>
+</ul>
+
+<script>
+// ---- Sons de référence en Web Audio (aucun fichier, aucune dépendance) ----
+let audioCtx = null;
+function ctx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+function midiFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
+
+// une note douce (triangle + enveloppe), planifiée à t0 (temps absolu du contexte)
+function playNote(midi, t0, dur, gain) {
+  const c = ctx(), o = c.createOscillator(), g = c.createGain();
+  o.type = "triangle";
+  o.frequency.value = midiFreq(midi);
+  const v = gain || 0.22;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(v, t0 + 0.04);
+  g.gain.setValueAtTime(v, Math.max(t0 + 0.04, t0 + dur - 0.09));
+  g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(c.destination);
+  o.start(t0); o.stop(t0 + dur + 0.05);
+}
+function playSeq(midis, durEach) {
+  const c = ctx();
+  let t = c.currentTime + 0.05;
+  for (const m of midis) { playNote(m, t, durEach * 0.92); t += durEach; }
+}
+
+const NOTE_NAMES = ["Do", "Do#", "Ré", "Ré#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"];
+function midiName(m) { return NOTE_NAMES[m % 12] + (Math.floor(m / 12) - 1); }
+
+// --- exercice 8: notes de référence + note mystère ---
+const NATURELS = [0, 2, 4, 5, 7, 9, 11]; // Do Ré Mi Fa Sol La Si
+function baseOctaveMidi() {
+  const oct = +document.querySelector('input[name="oct"]:checked').value; // 3 ou 4
+  return 12 * (oct + 1); // Do3 = 48, Do4 = 60
+}
+function renderNoteButtons() {
+  const row = document.getElementById("notes-row");
+  row.innerHTML = "";
+  const base = baseOctaveMidi();
+  NATURELS.forEach((semi, i) => {
+    const b = document.createElement("button");
+    b.className = "play";
+    b.textContent = ["Do", "Ré", "Mi", "Fa", "Sol", "La", "Si"][i];
+    b.addEventListener("click", () => playNote(base + semi, ctx().currentTime + 0.03, 1.4));
+    row.appendChild(b);
+  });
+}
+document.querySelectorAll('input[name="oct"]').forEach(r => r.addEventListener("change", renderNoteButtons));
+renderNoteButtons();
+
+let mystere = null;
+document.getElementById("mystere").addEventListener("click", () => {
+  const base = baseOctaveMidi();
+  mystere = base + NATURELS[Math.floor(Math.random() * NATURELS.length)];
+  document.getElementById("mystere-nom").textContent = "";
+  playNote(mystere, ctx().currentTime + 0.03, 1.6);
+});
+document.getElementById("reveler").addEventListener("click", () => {
+  if (mystere == null) return;
+  document.getElementById("mystere-nom").textContent = midiName(mystere);
+  playNote(mystere, ctx().currentTime + 0.03, 1.2);
+});
+
+// --- exercice 5: sirène (glissando doux Do3 -> Do4 -> Do3) ---
+document.getElementById("sirene").addEventListener("click", () => {
+  const c = ctx(), o = c.createOscillator(), g = c.createGain();
+  const t0 = c.currentTime + 0.05, up = 2.0, down = 2.0;
+  o.type = "sine";
+  o.frequency.setValueAtTime(midiFreq(48), t0);
+  o.frequency.exponentialRampToValueAtTime(midiFreq(60), t0 + up);
+  o.frequency.exponentialRampToValueAtTime(midiFreq(48), t0 + up + down);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(0.2, t0 + 0.15);
+  g.gain.setValueAtTime(0.2, t0 + up + down - 0.2);
+  g.gain.linearRampToValueAtTime(0.0001, t0 + up + down);
+  o.connect(g).connect(c.destination);
+  o.start(t0); o.stop(t0 + up + down + 0.1);
+});
+
+// --- exercice 9: gamme lente transposable ---
+let transpose = 0;
+function gammeBaseLabel() {
+  document.getElementById("gamme-base").textContent =
+    "départ : " + midiName(baseOctaveMidi() + transpose);
+}
+document.getElementById("gamme").addEventListener("click", () => {
+  const base = baseOctaveMidi() + transpose;
+  playSeq([0, 2, 4, 5, 7, 5, 4, 2, 0].map(s => base + s), 0.65);
+});
+document.getElementById("gamme-plus").addEventListener("click", () => { transpose = Math.min(transpose + 1, 12); gammeBaseLabel(); });
+document.getElementById("gamme-moins").addEventListener("click", () => { transpose = Math.max(transpose - 1, -6); gammeBaseLabel(); });
+document.querySelectorAll('input[name="oct"]').forEach(r => r.addEventListener("change", gammeBaseLabel));
+gammeBaseLabel();
+
+// --- exercice 10: intervalles ---
+document.getElementById("quinte").addEventListener("click", () => playSeq([baseOctaveMidi(), baseOctaveMidi() + 7], 0.8));
+document.getElementById("tierce").addEventListener("click", () => playSeq([baseOctaveMidi(), baseOctaveMidi() + 4], 0.8));
+document.getElementById("octaveiv").addEventListener("click", () => playSeq([baseOctaveMidi(), baseOctaveMidi() + 12], 0.8));
+
+// --- exercices 12 & 13 ---
+document.getElementById("staccato").addEventListener("click", () => {
+  const base = baseOctaveMidi();
+  const c = ctx(); let t = c.currentTime + 0.05;
+  for (const s of [0, 2, 4, 5, 7]) { playNote(base + s, t, 0.16, 0.25); t += 0.34; }
+});
+document.getElementById("descente").addEventListener("click", () => {
+  // 9 degrés descendants: Ré(9) Do(8) Si(7) La(6) Sol(5) Fa(4) Mi(3) Ré(2) Do(1)
+  const base = baseOctaveMidi();
+  playSeq([14, 12, 11, 9, 7, 5, 4, 2, 0].map(s => base + s), 0.5);
+});
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>

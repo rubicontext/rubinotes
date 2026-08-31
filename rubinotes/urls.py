@@ -2,6 +2,7 @@ from django.urls import path
 
 from trainer.views import (
     accords,
+    chant,
     echecs,
     icon,
     index,
@@ -18,6 +19,7 @@ urlpatterns = [
     path("accords", accords),
     path("voiles", voiles),
     path("echecs", echecs),
+    path("chant", chant),
     path("sables", sables),
     path("sables.json", sables_data),
     path("sables/upload", sables_upload),
