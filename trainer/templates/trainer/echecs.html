@@ -43,6 +43,22 @@
         font-size: clamp(18px, 5.6vw, 24px); line-height: 1;
         font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif; }
   .sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+
+  /* variantes: bloc dépliable sous chaque ouverture */
+  details.variants { margin: 12px 0 4px; }
+  details.variants summary {
+    cursor: pointer; list-style: none; display: inline-block;
+    background: white; border: 1px solid #e5e0d8; border-radius: 10px;
+    padding: 8px 14px; font-size: .92rem; color: var(--accent);
+    touch-action: manipulation; user-select: none;
+  }
+  details.variants summary::before { content: "▸ "; }
+  details.variants[open] summary::before { content: "▾ "; }
+  details.variants summary:hover { background: #eff6ff; }
+  details.variants .cards { margin-top: 10px; }
+  .card.variant { border-left: 4px solid var(--accent); }
+  .card.variant .parent { font-size: .75rem; color: #999; font-style: italic; margin-bottom: 2px; }
+  .card.variant h3 { font-size: .98rem; }
 </style>
 </head>
 <body>
@@ -116,6 +132,121 @@
   </div>
 </div>
 
+<details class="variants"><summary>Variantes de l'Italienne (3)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Italienne</div>
+    <h3>Le Giuoco Pianissimo</h3>
+    <div class="coups">3…Fc5 4. c3 Cf6 5. d3</div>
+    <div class="board" data-fen="r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> le « jeu très tranquille » : centre solidifié (c3 + d3), développement,
+    roque — et seulement ensuite le plan d4. Aucun piège à mémoriser.</p>
+    <div class="astuce">💡 LA suite débutant par excellence après l'Italienne.</div>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Italienne</div>
+    <h3>La Défense des deux cavaliers</h3>
+    <div class="coups">3…Cf6 4. d3</div>
+    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> au lieu de 3…Fc5, les Noirs contre-attaquent e4 avec le cavalier.
+    4. d3 garde un jeu sain (4. Cg5 attaque f7 mais demande de la théorie des deux côtés).</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Italienne</div>
+    <h3>Le Gambit Evans</h3>
+    <div class="coups">3…Fc5 4. b4!?</div>
+    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> sacrifier le pion b pour gagner du temps sur le fou et monter
+    une grosse attaque au centre. Spectaculaire — à connaître au moins pour ne pas le subir.</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variantes de l'Espagnole (3)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Espagnole</div>
+    <h3>La Variante d'échange</h3>
+    <div class="coups">3…a6 4. Fxc6 dxc6</div>
+    <div class="board" data-fen="r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> abîmer la structure noire (pions doublés c6-c7) et jouer simple
+    en visant la finale. Idéale côté Blancs pour débuter l'Espagnole.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Espagnole</div>
+    <h3>La Morphy fermée (grande ligne)</h3>
+    <div class="coups">3…a6 4. Fa4 Cf6 5. 0-0</div>
+    <div class="board" data-fen="r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1"></div>
+    <p class="idee"><b>L'idée :</b> le fou recule mais garde la pression sur c6/e5 : c'est l'autoroute
+    classique de l'Espagnole, jouée depuis 150 ans au plus haut niveau.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Espagnole</div>
+    <h3>La Défense berlinoise</h3>
+    <div class="coups">3…Cf6 4. 0-0</div>
+    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1"></div>
+    <p class="idee"><b>L'idée :</b> contre-attaque immédiate sur e4, réputation d'ultra-solidité
+    (le « mur de Berlin » remis à la mode par Kramnik contre Kasparov).</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variantes de l'Écossaise (2)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Écossaise</div>
+    <h3>La ligne principale</h3>
+    <div class="coups">3…exd4 4. Cxd4 Fc5</div>
+    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b5/3NP3/8/PPP2PPP/RNBQKB1R"></div>
+    <p class="idee"><b>L'idée :</b> le fou noir harcèle le cavalier centralisé. Jeu de pièces actif
+    des deux côtés, sans longue théorie.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de l'Écossaise</div>
+    <h3>Le Gambit écossais</h3>
+    <div class="coups">3…exd4 4. Fc4!?</div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/8/2BpP3/5N2/PPP2PPP/RNBQK2R"></div>
+    <p class="idee"><b>L'idée :</b> laisser filer le pion d4 pour un développement éclair — le fou
+    vise déjà f7. Attaques rapides garanties.</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variantes du Gambit Dame (2)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante du Gambit Dame</div>
+    <h3>Le Gambit Dame accepté</h3>
+    <div class="coups">2…dxc4 3. e3</div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/8/2pP4/4P3/PP3PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> les Noirs prennent le pion… et cèdent le centre. 3. e3 ouvre
+    la diagonale du fou qui récupérera c4 tranquillement.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante du Gambit Dame</div>
+    <h3>La Défense slave</h3>
+    <div class="coups">2…c6 3. Cf3 Cf6</div>
+    <div class="board" data-fen="rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R"></div>
+    <p class="idee"><b>L'idée :</b> soutenir d5 avec c6 au lieu de e6 : même solidité que le Gambit
+    Dame refusé, mais <b>sans enfermer le fou c8</b>. L'autre grande défense contre d4.</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variante du Système de Londres (1)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante du Système de Londres</div>
+    <h3>La pyramide type</h3>
+    <div class="coups">2…Cf6 3. e3 e6 4. Cf3 c5 5. c3</div>
+    <div class="board" data-fen="rnbqkb1r/pp3ppp/4pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R"></div>
+    <p class="idee"><b>L'idée :</b> LA position à retenir : pions c3-d4-e3 en pyramide, fou f4 sorti
+    <i>avant</i> de fermer la diagonale. On complète avec Fd3, Cbd2 et le roque — presque quelle
+    que soit la réponse noire.</p>
+  </div>
+</div>
+</details>
+
 <h2>Avec les Noirs — contre 1. e4</h2>
 <div class="cards">
   <div class="card">
@@ -146,6 +277,85 @@
   </div>
 </div>
 
+<details class="variants"><summary>Variantes de la Sicilienne (3)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de la Sicilienne</div>
+    <h3>La Sicilienne ouverte</h3>
+    <div class="coups">2. Cf3 d6 3. d4 cxd4 4. Cxd4 Cf6 5. Cc3</div>
+    <div class="board" data-fen="rnbqkb1r/pp2pppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R"></div>
+    <p class="idee"><b>L'idée :</b> la grande autoroute théorique (Najdorf, Dragon…) : les Blancs
+    ouvrent le centre, les Noirs obtiennent du contre-jeu sur la colonne c. Riche mais exigeant.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de la Sicilienne</div>
+    <h3>L'Alapin</h3>
+    <div class="coups">2. c3</div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> préparer d4 avec un pion de soutien et <b>esquiver toute la théorie
+    sicilienne</b>. Le choix malin côté Blancs quand on débute.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de la Sicilienne</div>
+    <h3>La Sicilienne fermée</h3>
+    <div class="coups">2. Cc3</div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> ne pas ouvrir le centre du tout : développement calme (g3, Fg2, d3)
+    et jeu positionnel. Les Noirs ne peuvent pas forcer leurs lignes préférées.</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variantes de la Française (2)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de la Française</div>
+    <h3>La Variante d'avance</h3>
+    <div class="coups">3. e5 c5</div>
+    <div class="board" data-fen="rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> les Blancs ferment le centre ; chacun son plan : les Blancs jouent
+    à l'aile roi, les Noirs attaquent la base de la chaîne (d4) avec c5, Cc6, Db6.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de la Française</div>
+    <h3>La Variante d'échange</h3>
+    <div class="coups">3. exd5 exd5</div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> position symétrique, simple et saine — parfaite pour apprendre
+    la Française des deux côtés sans risque.</p>
+  </div>
+</div>
+</details>
+
+<details class="variants"><summary>Variantes de la Caro-Kann (3)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante de la Caro-Kann</div>
+    <h3>La Variante d'avance</h3>
+    <div class="coups">3. e5 Ff5</div>
+    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/3pPb2/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> LE réflexe à retenir : le fou c8 sort en f5 <b>avant</b> de jouer e6
+    — exactement ce que la Française ne peut pas faire.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de la Caro-Kann</div>
+    <h3>La Variante d'échange</h3>
+    <div class="coups">3. exd5 cxd5</div>
+    <div class="board" data-fen="rnbqkbnr/pp2pppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> structure fixée, plans limpides. Les Noirs développent
+    naturellement (Cc6, Ff5 ou Fg4, e6).</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante de la Caro-Kann</div>
+    <h3>La Variante classique</h3>
+    <div class="coups">3. Cc3 dxe4 4. Cxe4 Ff5</div>
+    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> échanger au centre puis activer le fou tout de suite. La ligne
+    historique de la Caro-Kann, solide et logique.</p>
+  </div>
+</div>
+</details>
+
 <h2>Avec les Noirs — contre 1. d4</h2>
 <div class="cards">
   <div class="card">
@@ -157,6 +367,27 @@
     <div class="astuce">💡 Même remarque que la Française : le fou c8 sort en dernier — sois-en conscient et échange-le si possible.</div>
   </div>
 </div>
+
+<details class="variants"><summary>Variantes du Gambit Dame refusé (2)</summary>
+<div class="cards">
+  <div class="card variant">
+    <div class="parent">↳ variante du Gambit Dame refusé</div>
+    <h3>La ligne classique</h3>
+    <div class="coups">3. Cc3 Cf6 4. Fg5 Fe7</div>
+    <div class="board" data-fen="rnbqk2r/ppp1bppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR"></div>
+    <p class="idee"><b>L'idée :</b> les Blancs clouent le cavalier avec Fg5, les Noirs neutralisent
+    tranquillement avec Fe7 puis roquent. Développement harmonieux des deux côtés.</p>
+  </div>
+  <div class="card variant">
+    <div class="parent">↳ variante du Gambit Dame refusé</div>
+    <h3>La Variante d'échange</h3>
+    <div class="coups">3. cxd5 exd5</div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PP2PPPP/RNBQKBNR"></div>
+    <p class="idee"><b>L'idée :</b> fixer la structure tout de suite : les Blancs jouent la classique
+    « attaque de minorité » (b4-b5) à l'aile dame, les Noirs cherchent du jeu à l'aile roi.</p>
+  </div>
+</div>
+</details>
 
 <script>
 // Rendu d'un échiquier depuis un FEN (position seule) en Unicode — zéro dépendance
