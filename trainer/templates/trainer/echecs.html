@@ -43,6 +43,18 @@
         font-size: clamp(18px, 5.6vw, 24px); line-height: 1;
         font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif; }
   .sq.l { background: var(--light); } .sq.d { background: var(--dark); }
+  /* surbrillance — doit rester APRÈS .sq.l/.sq.d (même spécificité, l'ordre décide) */
+  .sq.hl   { background: #f3c96b; }   /* dernier coup joué — case claire */
+  .sq.hl.d { background: #d9a94a; }   /* dernier coup joué — case foncée */
+  .sq.next { background-image: radial-gradient(circle, rgba(214,116,20,.82) 17%, transparent 18%); }
+
+  .legende { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .82rem; color: #666;
+             margin: -8px 0 18px; max-width: 720px; }
+  .legende i { display: inline-block; width: 11px; height: 11px; border-radius: 2px;
+               vertical-align: -1px; margin-right: 6px; border: 1px solid rgba(0,0,0,.18); }
+  .legende i.k-hl { background: #f3c96b; }
+  .legende i.k-next { background: var(--light);
+    background-image: radial-gradient(circle, rgba(214,116,20,.82) 30%, transparent 31%); }
 
   /* variantes: bloc dépliable sous chaque ouverture */
   details.variants { margin: 12px 0 4px; }
@@ -74,6 +86,10 @@
   Les ouvertures incontournables pour débuter : quelques coups à connaître, et surtout
   <b>l'idée</b> derrière chacune. Notation française : R = Roi, D = Dame, T = Tour, F = Fou, C = Cavalier.
 </div>
+<div class="legende">
+  <span><i class="k-hl"></i>cases de départ et d'arrivée du dernier coup</span>
+  <span><i class="k-next"></i>continuation conseillée</span>
+</div>
 
 <h2>Les principes avant les coups</h2>
 <ol class="principes">
@@ -89,7 +105,7 @@
   <div class="card">
     <h3>L'Italienne</h3>
     <div class="coups">1. e4 e5 2. Cf3 Cc6 3. Fc4</div>
-    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R" data-hl="f1,c4" data-next="c3,d4"></div>
     <p class="idee"><b>L'idée :</b> développement rapide et naturel. Le fou vise f7, la case la plus fragile
     des Noirs (défendue seulement par le roi). On continue avec c3 + d4, ou d3 et le roque.</p>
     <div class="astuce">💡 L'ouverture idéale pour apprendre : tous les coups sont logiques et suivent les principes.</div>
@@ -98,7 +114,7 @@
   <div class="card">
     <h3>L'Espagnole (Ruy Lopez)</h3>
     <div class="coups">1. e4 e5 2. Cf3 Cc6 3. Fb5</div>
-    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R" data-hl="f1,b5" data-next="c6,d4"></div>
     <p class="idee"><b>L'idée :</b> le fou attaque le cavalier c6, défenseur du pion e5 — pression durable
     sur le centre. L'ouverture la plus jouée au haut niveau depuis des siècles.</p>
     <div class="astuce">💡 Après 3…a6, on peut jouer simplement 4. Fxc6 (échange) puis 5. d4 : facile à comprendre.</div>
@@ -107,7 +123,7 @@
   <div class="card">
     <h3>L'Écossaise</h3>
     <div class="coups">1. e4 e5 2. Cf3 Cc6 3. d4</div>
-    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R"></div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/4p3/3PP3/5N2/PPP2PPP/RNBQKB1R" data-hl="d2,d4"></div>
     <p class="idee"><b>L'idée :</b> ouvrir le centre tout de suite. Après 3…exd4 4. Cxd4, les Blancs ont
     un cavalier centralisé et un jeu libre, sans théorie compliquée.</p>
     <div class="astuce">💡 Parfaite si tu veux éviter les longues lignes de l'Espagnole tout en jouant au centre.</div>
@@ -116,7 +132,7 @@
   <div class="card">
     <h3>Le Gambit Dame</h3>
     <div class="coups">1. d4 d5 2. c4</div>
-    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR" data-hl="c2,c4" data-next="e3"></div>
     <p class="idee"><b>L'idée :</b> offrir le pion c4 pour détourner le pion d5 et dominer le centre.
     Ce n'est pas un vrai sacrifice : le pion se récupère presque toujours.</p>
     <div class="astuce">💡 Si les Noirs prennent (2…dxc4), joue 3. e3 ou 3. e4 puis reprends le pion avec le fou.</div>
@@ -125,7 +141,7 @@
   <div class="card">
     <h3>Le Système de Londres</h3>
     <div class="coups">1. d4 d5 2. Ff4</div>
-    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/3p4/3P1B2/8/PPP1PPPP/RN1QKBNR" data-hl="c1,f4" data-next="e3,c3"></div>
     <p class="idee"><b>L'idée :</b> un « système » : les mêmes coups presque quelle que soit la réponse
     (Ff4, e3, Fd3, Cf3, Cbd2, c3). Structure solide en pyramide, très peu de théorie à apprendre.</p>
     <div class="astuce">💡 Le choix des débutants (et de beaucoup de forts joueurs) pour jouer d4 sans mémoriser des lignes.</div>
@@ -138,7 +154,7 @@
     <div class="parent">↳ variante de l'Italienne</div>
     <h3>Le Giuoco Pianissimo</h3>
     <div class="coups">3…Fc5 4. c3 Cf6 5. d3</div>
-    <div class="board" data-fen="r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R" data-hl="d2,d3"></div>
     <p class="idee"><b>L'idée :</b> le « jeu très tranquille » : centre solidifié (c3 + d3), développement,
     roque — et seulement ensuite le plan d4. Aucun piège à mémoriser.</p>
     <div class="astuce">💡 LA suite débutant par excellence après l'Italienne.</div>
@@ -147,7 +163,7 @@
     <div class="parent">↳ variante de l'Italienne</div>
     <h3>La Défense des deux cavaliers</h3>
     <div class="coups">3…Cf6 4. d3</div>
-    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R" data-hl="d2,d3"></div>
     <p class="idee"><b>L'idée :</b> au lieu de 3…Fc5, les Noirs contre-attaquent e4 avec le cavalier.
     4. d3 garde un jeu sain (4. Cg5 attaque f7 mais demande de la théorie des deux côtés).</p>
   </div>
@@ -155,7 +171,7 @@
     <div class="parent">↳ variante de l'Italienne</div>
     <h3>Le Gambit Evans</h3>
     <div class="coups">3…Fc5 4. b4!?</div>
-    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b1p3/1PB1P3/5N2/P1PP1PPP/RNBQK2R" data-hl="b2,b4"></div>
     <p class="idee"><b>L'idée :</b> sacrifier le pion b pour gagner du temps sur le fou et monter
     une grosse attaque au centre. Spectaculaire — à connaître au moins pour ne pas le subir.</p>
   </div>
@@ -168,7 +184,7 @@
     <div class="parent">↳ variante de l'Espagnole</div>
     <h3>La Variante d'échange</h3>
     <div class="coups">3…a6 4. Fxc6 dxc6</div>
-    <div class="board" data-fen="r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqkbnr/1pp2ppp/p1p5/4p3/4P3/5N2/PPPP1PPP/RNBQK2R" data-hl="d7,c6"></div>
     <p class="idee"><b>L'idée :</b> abîmer la structure noire (pions doublés c6-c7) et jouer simple
     en visant la finale. Idéale côté Blancs pour débuter l'Espagnole.</p>
   </div>
@@ -176,7 +192,7 @@
     <div class="parent">↳ variante de l'Espagnole</div>
     <h3>La Morphy fermée (grande ligne)</h3>
     <div class="coups">3…a6 4. Fa4 Cf6 5. 0-0</div>
-    <div class="board" data-fen="r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1"></div>
+    <div class="board" data-fen="r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1" data-hl="e1,g1"></div>
     <p class="idee"><b>L'idée :</b> le fou recule mais garde la pression sur c6/e5 : c'est l'autoroute
     classique de l'Espagnole, jouée depuis 150 ans au plus haut niveau.</p>
   </div>
@@ -184,7 +200,7 @@
     <div class="parent">↳ variante de l'Espagnole</div>
     <h3>La Défense berlinoise</h3>
     <div class="coups">3…Cf6 4. 0-0</div>
-    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1"></div>
+    <div class="board" data-fen="r1bqkb1r/pppp1ppp/2n2n2/1B2p3/4P3/5N2/PPPP1PPP/RNBQ1RK1" data-hl="e1,g1"></div>
     <p class="idee"><b>L'idée :</b> contre-attaque immédiate sur e4, réputation d'ultra-solidité
     (le « mur de Berlin » remis à la mode par Kramnik contre Kasparov).</p>
   </div>
@@ -197,7 +213,7 @@
     <div class="parent">↳ variante de l'Écossaise</div>
     <h3>La ligne principale</h3>
     <div class="coups">3…exd4 4. Cxd4 Fc5</div>
-    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b5/3NP3/8/PPP2PPP/RNBQKB1R"></div>
+    <div class="board" data-fen="r1bqk1nr/pppp1ppp/2n5/2b5/3NP3/8/PPP2PPP/RNBQKB1R" data-hl="f8,c5"></div>
     <p class="idee"><b>L'idée :</b> le fou noir harcèle le cavalier centralisé. Jeu de pièces actif
     des deux côtés, sans longue théorie.</p>
   </div>
@@ -205,7 +221,7 @@
     <div class="parent">↳ variante de l'Écossaise</div>
     <h3>Le Gambit écossais</h3>
     <div class="coups">3…exd4 4. Fc4!?</div>
-    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/8/2BpP3/5N2/PPP2PPP/RNBQK2R"></div>
+    <div class="board" data-fen="r1bqkbnr/pppp1ppp/2n5/8/2BpP3/5N2/PPP2PPP/RNBQK2R" data-hl="f1,c4"></div>
     <p class="idee"><b>L'idée :</b> laisser filer le pion d4 pour un développement éclair — le fou
     vise déjà f7. Attaques rapides garanties.</p>
   </div>
@@ -218,7 +234,7 @@
     <div class="parent">↳ variante du Gambit Dame</div>
     <h3>Le Gambit Dame accepté</h3>
     <div class="coups">2…dxc4 3. e3</div>
-    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/8/2pP4/4P3/PP3PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp1pppp/8/8/2pP4/4P3/PP3PPP/RNBQKBNR" data-hl="e2,e3"></div>
     <p class="idee"><b>L'idée :</b> les Noirs prennent le pion… et cèdent le centre. 3. e3 ouvre
     la diagonale du fou qui récupérera c4 tranquillement.</p>
   </div>
@@ -226,7 +242,7 @@
     <div class="parent">↳ variante du Gambit Dame</div>
     <h3>La Défense slave</h3>
     <div class="coups">2…c6 3. Cf3 Cf6</div>
-    <div class="board" data-fen="rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R"></div>
+    <div class="board" data-fen="rnbqkb1r/pp2pppp/2p2n2/3p4/2PP4/5N2/PP2PPPP/RNBQKB1R" data-hl="g8,f6"></div>
     <p class="idee"><b>L'idée :</b> soutenir d5 avec c6 au lieu de e6 : même solidité que le Gambit
     Dame refusé, mais <b>sans enfermer le fou c8</b>. L'autre grande défense contre d4.</p>
   </div>
@@ -239,7 +255,7 @@
     <div class="parent">↳ variante du Système de Londres</div>
     <h3>La pyramide type</h3>
     <div class="coups">2…Cf6 3. e3 e6 4. Cf3 c5 5. c3</div>
-    <div class="board" data-fen="rnbqkb1r/pp3ppp/4pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R"></div>
+    <div class="board" data-fen="rnbqkb1r/pp3ppp/4pn2/2pp4/3P1B2/2P1PN2/PP3PPP/RN1QKB1R" data-hl="c2,c3"></div>
     <p class="idee"><b>L'idée :</b> LA position à retenir : pions c3-d4-e3 en pyramide, fou f4 sorti
     <i>avant</i> de fermer la diagonale. On complète avec Fd3, Cbd2 et le roque — presque quelle
     que soit la réponse noire.</p>
@@ -252,7 +268,7 @@
   <div class="card">
     <h3>La Sicilienne</h3>
     <div class="coups">1. e4 c5</div>
-    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR" data-hl="c7,c5"></div>
     <p class="idee"><b>L'idée :</b> combattre le centre de côté, sans symétrie : les Noirs jouent pour gagner.
     La réponse la plus populaire à e4, riche mais exigeante.</p>
     <div class="astuce">💡 En débutant, garde un schéma simple : c5, d6, Cf6, g6, Fg7 (le « dragon accéléré » sans théorie).</div>
@@ -261,7 +277,7 @@
   <div class="card">
     <h3>La Française</h3>
     <div class="coups">1. e4 e6 2. d4 d5</div>
-    <div class="board" data-fen="rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR" data-hl="d7,d5"></div>
     <p class="idee"><b>L'idée :</b> préparer d5 pour défier e4 avec un pion soutenu. Position solide,
     plans clairs : attaquer la chaîne de pions blanche avec c5 puis f6.</p>
     <div class="astuce">💡 Son seul défaut : le fou c8 enfermé. Pense à l'activer (b6 + Fa6, ou après f6).</div>
@@ -270,7 +286,7 @@
   <div class="card">
     <h3>La Caro-Kann</h3>
     <div class="coups">1. e4 c6 2. d4 d5</div>
-    <div class="board" data-fen="rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR" data-hl="d7,d5"></div>
     <p class="idee"><b>L'idée :</b> comme la Française (préparer d5), mais le fou c8 pourra sortir
     avant de fermer la structure. Réputée ultra-solide, peu de mauvaises surprises.</p>
     <div class="astuce">💡 Excellent premier répertoire noir : des positions saines qu'on comprend vite.</div>
@@ -283,7 +299,7 @@
     <div class="parent">↳ variante de la Sicilienne</div>
     <h3>La Sicilienne ouverte</h3>
     <div class="coups">2. Cf3 d6 3. d4 cxd4 4. Cxd4 Cf6 5. Cc3</div>
-    <div class="board" data-fen="rnbqkb1r/pp2pppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R"></div>
+    <div class="board" data-fen="rnbqkb1r/pp2pppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R" data-hl="b1,c3"></div>
     <p class="idee"><b>L'idée :</b> la grande autoroute théorique (Najdorf, Dragon…) : les Blancs
     ouvrent le centre, les Noirs obtiennent du contre-jeu sur la colonne c. Riche mais exigeant.</p>
   </div>
@@ -291,7 +307,7 @@
     <div class="parent">↳ variante de la Sicilienne</div>
     <h3>L'Alapin</h3>
     <div class="coups">2. c3</div>
-    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2P5/PP1P1PPP/RNBQKBNR" data-hl="c2,c3"></div>
     <p class="idee"><b>L'idée :</b> préparer d4 avec un pion de soutien et <b>esquiver toute la théorie
     sicilienne</b>. Le choix malin côté Blancs quand on débute.</p>
   </div>
@@ -299,7 +315,7 @@
     <div class="parent">↳ variante de la Sicilienne</div>
     <h3>La Sicilienne fermée</h3>
     <div class="coups">2. Cc3</div>
-    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR" data-hl="b1,c3"></div>
     <p class="idee"><b>L'idée :</b> ne pas ouvrir le centre du tout : développement calme (g3, Fg2, d3)
     et jeu positionnel. Les Noirs ne peuvent pas forcer leurs lignes préférées.</p>
   </div>
@@ -312,7 +328,7 @@
     <div class="parent">↳ variante de la Française</div>
     <h3>La Variante d'avance</h3>
     <div class="coups">3. e5 c5</div>
-    <div class="board" data-fen="rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp3ppp/4p3/2ppP3/3P4/8/PPP2PPP/RNBQKBNR" data-hl="c7,c5"></div>
     <p class="idee"><b>L'idée :</b> les Blancs ferment le centre ; chacun son plan : les Blancs jouent
     à l'aile roi, les Noirs attaquent la base de la chaîne (d4) avec c5, Cc6, Db6.</p>
   </div>
@@ -320,7 +336,7 @@
     <div class="parent">↳ variante de la Française</div>
     <h3>La Variante d'échange</h3>
     <div class="coups">3. exd5 exd5</div>
-    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR" data-hl="e6,d5"></div>
     <p class="idee"><b>L'idée :</b> position symétrique, simple et saine — parfaite pour apprendre
     la Française des deux côtés sans risque.</p>
   </div>
@@ -333,7 +349,7 @@
     <div class="parent">↳ variante de la Caro-Kann</div>
     <h3>La Variante d'avance</h3>
     <div class="coups">3. e5 Ff5</div>
-    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/3pPb2/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/3pPb2/3P4/8/PPP2PPP/RNBQKBNR" data-hl="c8,f5"></div>
     <p class="idee"><b>L'idée :</b> LE réflexe à retenir : le fou c8 sort en f5 <b>avant</b> de jouer e6
     — exactement ce que la Française ne peut pas faire.</p>
   </div>
@@ -341,7 +357,7 @@
     <div class="parent">↳ variante de la Caro-Kann</div>
     <h3>La Variante d'échange</h3>
     <div class="coups">3. exd5 cxd5</div>
-    <div class="board" data-fen="rnbqkbnr/pp2pppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/pp2pppp/8/3p4/3P4/8/PPP2PPP/RNBQKBNR" data-hl="c6,d5"></div>
     <p class="idee"><b>L'idée :</b> structure fixée, plans limpides. Les Noirs développent
     naturellement (Cc6, Ff5 ou Fg4, e6).</p>
   </div>
@@ -349,7 +365,7 @@
     <div class="parent">↳ variante de la Caro-Kann</div>
     <h3>La Variante classique</h3>
     <div class="coups">3. Cc3 dxe4 4. Cxe4 Ff5</div>
-    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR"></div>
+    <div class="board" data-fen="rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR" data-hl="c8,f5"></div>
     <p class="idee"><b>L'idée :</b> échanger au centre puis activer le fou tout de suite. La ligne
     historique de la Caro-Kann, solide et logique.</p>
   </div>
@@ -361,7 +377,7 @@
   <div class="card">
     <h3>Le Gambit Dame refusé</h3>
     <div class="coups">1. d4 d5 2. c4 e6</div>
-    <div class="board" data-fen="rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR" data-hl="e7,e6"></div>
     <p class="idee"><b>L'idée :</b> soutenir d5 au lieu de prendre en c4 : le centre tient. Développement
     naturel : Cf6, Fe7, roque. La défense la plus classique et la plus saine contre d4.</p>
     <div class="astuce">💡 Même remarque que la Française : le fou c8 sort en dernier — sois-en conscient et échange-le si possible.</div>
@@ -374,7 +390,7 @@
     <div class="parent">↳ variante du Gambit Dame refusé</div>
     <h3>La ligne classique</h3>
     <div class="coups">3. Cc3 Cf6 4. Fg5 Fe7</div>
-    <div class="board" data-fen="rnbqk2r/ppp1bppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR"></div>
+    <div class="board" data-fen="rnbqk2r/ppp1bppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR" data-hl="f8,e7"></div>
     <p class="idee"><b>L'idée :</b> les Blancs clouent le cavalier avec Fg5, les Noirs neutralisent
     tranquillement avec Fe7 puis roquent. Développement harmonieux des deux côtés.</p>
   </div>
@@ -382,7 +398,7 @@
     <div class="parent">↳ variante du Gambit Dame refusé</div>
     <h3>La Variante d'échange</h3>
     <div class="coups">3. cxd5 exd5</div>
-    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PP2PPPP/RNBQKBNR"></div>
+    <div class="board" data-fen="rnbqkbnr/ppp2ppp/8/3p4/3P4/8/PP2PPPP/RNBQKBNR" data-hl="e6,d5"></div>
     <p class="idee"><b>L'idée :</b> fixer la structure tout de suite : les Blancs jouent la classique
     « attaque de minorité » (b4-b5) à l'aile dame, les Noirs cherchent du jeu à l'aile roi.</p>
   </div>
@@ -395,23 +411,31 @@ const GLYPHS = {
   K:"♔", Q:"♕", R:"♖", B:"♗", N:"♘", P:"♙",
   k:"♚", q:"♛", r:"♜", b:"♝", n:"♞", p:"♟",
 };
+// data-hl   = cases départ+arrivée du dernier coup   (ex. data-hl="f1,b5")
+// data-next = cases de la continuation conseillée    (ex. data-next="c3,d4")
+const FILES = "abcdefgh";
 document.querySelectorAll(".board").forEach(board => {
+  const hl   = (board.dataset.hl   || "").split(",").map(s => s.trim()).filter(Boolean);
+  const next = (board.dataset.next || "").split(",").map(s => s.trim()).filter(Boolean);
   const rows = board.dataset.fen.split("/");
   rows.forEach((row, r) => {
     let file = 0;
     for (const ch of row) {
       if (/\d/.test(ch)) {
-        for (let i = 0; i < +ch; i++) { addSquare(board, r, file, ""); file++; }
+        for (let i = 0; i < +ch; i++) { addSquare(board, r, file, "", hl, next); file++; }
       } else {
-        addSquare(board, r, file, GLYPHS[ch] || "");
+        addSquare(board, r, file, GLYPHS[ch] || "", hl, next);
         file++;
       }
     }
   });
 });
-function addSquare(board, r, f, glyph) {
+function addSquare(board, r, f, glyph, hl = [], next = []) {
   const sq = document.createElement("div");
-  sq.className = "sq " + (((r + f) % 2 === 0) ? "l" : "d");
+  const name = FILES[f] + (8 - r);
+  sq.className = "sq " + (((r + f) % 2 === 0) ? "l" : "d")
+               + (hl.includes(name)   ? " hl"   : "")
+               + (next.includes(name) ? " next" : "");
   sq.textContent = glyph;
   board.appendChild(sq);
 }
