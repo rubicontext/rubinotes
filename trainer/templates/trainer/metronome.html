@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Métronome de souffle — exercices de chant</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --ok:#16a34a;
+          --expire:#0d9488; --inspire:#2563eb; --prep:#b45309; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 16px 14px 40px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .topnav { display: flex; gap: 14px; margin-bottom: 12px; font-size: .9rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; font-weight: normal; text-align: center; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 14px; text-align: center; max-width: 620px; }
+
+  .card {
+    background: white; border: 1px solid #e5e0d8; border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    width: 100%; max-width: 620px;
+  }
+
+  /* ----- réglages ----- */
+  .cfg { display: flex; flex-wrap: wrap; gap: 14px 26px; justify-content: center; align-items: flex-end; }
+  .cfg .field { text-align: center; }
+  .cfg label { display: block; font-size: .82rem; color: #666; margin-bottom: 5px; }
+  .stepper { display: inline-flex; align-items: center; gap: 8px; }
+  .stepper button {
+    width: 40px; height: 40px; font-size: 1.3rem; line-height: 1;
+    border: 1px solid var(--accent); background: white; color: var(--accent);
+    border-radius: 8px; cursor: pointer; touch-action: manipulation; font-family: inherit;
+  }
+  .stepper button:active { background: #dbeafe; }
+  .stepper .val { font-size: 1.5rem; min-width: 34px; text-align: center; font-weight: bold; }
+  .cfg select { font-family: inherit; font-size: 1.05rem; padding: 8px 10px; border-radius: 8px; border: 1px solid #ccc; }
+  .cfg input[type=range] { width: 150px; accent-color: var(--accent); }
+  .modes { display: flex; gap: 8px; justify-content: center; }
+  .modes label {
+    display: inline-flex; align-items: center; gap: 6px; font-size: .95rem;
+    border: 1px solid #ccc; border-radius: 18px; padding: 8px 14px; cursor: pointer;
+    touch-action: manipulation;
+  }
+  .modes input { accent-color: var(--accent); }
+  .modes label.sel { border-color: var(--accent); background: #eff6ff; color: var(--accent); font-weight: bold; }
+
+  /* ----- écran principal ----- */
+  #screen {
+    text-align: center; border-radius: 12px; padding: 18px 10px 22px;
+    transition: background .25s;
+  }
+  #screen.prep    { background: #fff7ed; }
+  #screen.expire  { background: #ecfdf5; }
+  #screen.inspire { background: #eff6ff; }
+  #screen.done    { background: #f0fdf4; }
+  #phase { font-size: 1.9rem; letter-spacing: .06em; margin: 2px 0 2px; }
+  #phase.prep    { color: var(--prep); }
+  #phase.expire  { color: var(--expire); font-weight: bold; }
+  #phase.inspire { color: var(--inspire); font-weight: bold; }
+  #phase.done    { color: var(--ok); font-weight: bold; }
+  #mesure { font-size: 1rem; color: #666; min-height: 1.3em; }
+  #bignum {
+    font-size: 7.5rem; line-height: 1.05; font-weight: bold; color: var(--expire);
+    min-height: 1.05em;
+  }
+  #bignum.dim { color: #d0d8d6; font-size: 3.2rem; padding: .45em 0; }
+  .beats { display: flex; gap: 12px; justify-content: center; margin-top: 10px; min-height: 18px; }
+  .beats .b { width: 15px; height: 15px; border-radius: 50%; background: #e2e0da; transition: transform .08s; }
+  .beats .b.on { transform: scale(1.35); }
+  #screen.expire  .beats .b.on { background: var(--expire); }
+  #screen.inspire .beats .b.on { background: var(--inspire); }
+  #screen.prep    .beats .b.on { background: var(--prep); }
+  #info { font-size: .88rem; color: #888; margin-top: 10px; min-height: 1.3em; }
+
+  .actions { display: flex; gap: 12px; justify-content: center; margin-top: 4px; }
+  .actions button {
+    font-family: inherit; font-size: 1.15rem; padding: 13px 34px;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: 10px; cursor: pointer; touch-action: manipulation;
+  }
+  .actions button.stop { background: white; color: #dc2626; border-color: #dc2626; }
+  .actions button:disabled { opacity: .4; cursor: default; }
+
+  .help { font-size: .85rem; color: #777; line-height: 1.55; }
+  .help b.ex { color: var(--expire); } .help b.in { color: var(--inspire); }
+  @media (max-width: 480px) {
+    #bignum { font-size: 5.6rem; }
+    .cfg { gap: 10px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+  <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
+  <a href="/echecs">Échecs</a><a href="/chant">Chant</a><a href="/metronome" class="on">Métronome</a>
+</nav>
+
+<h1>🌬️ Métronome de souffle</h1>
+<div class="sub">
+  Cycle : <b style="color:var(--expire)">expiration N mesures</b> →
+  <b style="color:var(--inspire)">inspiration M mesures</b>, en boucle.
+  À chaque mesure d'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand.
+</div>
+
+<div class="card">
+  <div class="cfg">
+    <div class="field">
+      <label>Expiration (N mesures)</label>
+      <div class="stepper">
+        <button type="button" data-t="n" data-d="-1">−</button>
+        <span class="val" id="val-n">4</span>
+        <button type="button" data-t="n" data-d="1">＋</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Inspiration (M mesures)</label>
+      <div class="stepper">
+        <button type="button" data-t="m" data-d="-1">−</button>
+        <span class="val" id="val-m">2</span>
+        <button type="button" data-t="m" data-d="1">＋</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Tempo : <b id="bpm-val">80</b> bpm</label>
+      <input type="range" id="bpm" min="40" max="160" step="2" value="80">
+    </div>
+    <div class="field">
+      <label>Temps / mesure</label>
+      <select id="beats">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Mode</label>
+      <div class="modes">
+        <label id="lbl-static" class="sel"><input type="radio" name="mode" value="static" checked>Statique</label>
+        <label id="lbl-dim"><input type="radio" name="mode" value="dim">Dégressif</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div id="screen">
+    <div id="phase">Prêt</div>
+    <div id="mesure">&nbsp;</div>
+    <div id="bignum" class="dim">—</div>
+    <div class="beats" id="beats-row"></div>
+    <div id="info">&nbsp;</div>
+  </div>
+  <div class="actions">
+    <button id="start">▶ Démarrer</button>
+    <button id="stop" class="stop" disabled>■ Stop</button>
+  </div>
+</div>
+
+<div class="card help">
+  <b>Comment ça marche.</b> Une mesure de <b style="color:var(--prep)">préparation</b> (inspire un bon coup),
+  puis <b class="ex">EXPIRE</b> pendant N mesures — le grand chiffre change à chaque mesure
+  (utilise-le comme consigne : nombre de « tch », de notes, de pulsations à chanter…) —
+  puis <b class="in">INSPIRE</b> pendant M mesures, et on boucle.<br>
+  <b>Statique</b> : M ne change jamais, boucle infinie (Stop pour arrêter).
+  <b>Dégressif</b> : M diminue de 1 à chaque boucle — l'inspiration se raccourcit — et
+  la séance s'arrête toute seule après la boucle à M = 1. 💪
+</div>
+
+<script>
+// ---------- réglages (persistants) ----------
+const cfg = {
+  n: +(localStorage.getItem("metro-n") || 4),
+  m: +(localStorage.getItem("metro-m") || 2),
+  bpm: +(localStorage.getItem("metro-bpm") || 80),
+  beats: +(localStorage.getItem("metro-beats") || 4),
+  mode: localStorage.getItem("metro-mode") || "static",
+};
+cfg.n = Math.min(8, Math.max(1, cfg.n));
+cfg.m = Math.min(8, Math.max(1, cfg.m));
+
+function saveCfg() {
+  localStorage.setItem("metro-n", cfg.n);
+  localStorage.setItem("metro-m", cfg.m);
+  localStorage.setItem("metro-bpm", cfg.bpm);
+  localStorage.setItem("metro-beats", cfg.beats);
+  localStorage.setItem("metro-mode", cfg.mode);
+}
+
+function syncCfgUi() {
+  document.getElementById("val-n").textContent = cfg.n;
+  document.getElementById("val-m").textContent = cfg.m;
+  document.getElementById("bpm").value = cfg.bpm;
+  document.getElementById("bpm-val").textContent = cfg.bpm;
+  document.getElementById("beats").value = cfg.beats;
+  document.querySelector(`input[name="mode"][value="${cfg.mode}"]`).checked = true;
+  document.getElementById("lbl-static").classList.toggle("sel", cfg.mode === "static");
+  document.getElementById("lbl-dim").classList.toggle("sel", cfg.mode === "dim");
+}
+
+document.querySelectorAll(".stepper button").forEach(b => b.addEventListener("click", () => {
+  const key = b.dataset.t;
+  cfg[key] = Math.min(8, Math.max(1, cfg[key] + (+b.dataset.d)));
+  saveCfg(); syncCfgUi();
+}));
+document.getElementById("bpm").addEventListener("input", e => {
+  cfg.bpm = +e.target.value; saveCfg(); syncCfgUi();
+});
+document.getElementById("beats").addEventListener("change", e => {
+  cfg.beats = +e.target.value; saveCfg(); syncCfgUi();
+});
+document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => {
+  cfg.mode = r.value; saveCfg(); syncCfgUi();
+}));
+syncCfgUi();
+
+// ---------- audio (Web Audio, zéro fichier) ----------
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+// clic court; timbre par phase, accent sur le 1er temps
+const CLICK_FREQS = {
+  prep:    { accent: 1200, beat: 800 },
+  expire:  { accent: 660,  beat: 440 },   // grave/chaud : on chante dessus
+  inspire: { accent: 1568, beat: 1046 },  // aigu/clair : on inspire
+};
+function click(time, phase, accent) {
+  const c = audio(), o = c.createOscillator(), g = c.createGain();
+  o.type = "square";
+  o.frequency.value = CLICK_FREQS[phase][accent ? "accent" : "beat"];
+  const v = accent ? 0.28 : 0.14;
+  g.gain.setValueAtTime(v, time);
+  g.gain.exponentialRampToValueAtTime(0.001, time + 0.07);
+  o.connect(g).connect(c.destination);
+  o.start(time); o.stop(time + 0.09);
+}
+
+// ---------- séquenceur (lookahead) ----------
+const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD = 0.12;
+let running = false, timer = null;
+let phase, measure, beat, currentM, loop, nextTime, currentRand;
+
+function beatDur() { return 60 / cfg.bpm; }
+
+function phaseMeasures() {
+  return phase === "prep" ? 1 : (phase === "expire" ? cfg.n : currentM);
+}
+
+// avance d'un temps; renvoie false si la séance est terminée (mode dégressif)
+function advance() {
+  beat++;
+  if (beat < cfg.beats) return true;
+  beat = 0; measure++;
+  if (measure < phaseMeasures()) {
+    if (phase === "expire") currentRand = 1 + Math.floor(Math.random() * 5);
+    return true;
+  }
+  measure = 0;
+  if (phase === "prep") { phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5); return true; }
+  if (phase === "expire") {
+    if (currentM > 0) { phase = "inspire"; return true; }
+    // M déjà à 0 (dégressif) : la boucle s'arrête après l'expiration
+    return false;
+  }
+  // fin d'inspiration = fin de boucle
+  loop++;
+  if (cfg.mode === "dim") {
+    currentM--;
+    if (currentM <= 0) return false;   // « arrivé à 0 on stoppe »
+  }
+  phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5);
+  return true;
+}
+
+function schedulerTick() {
+  const c = audio();
+  while (running && nextTime < c.currentTime + SCHEDULE_AHEAD) {
+    click(nextTime, phase, beat === 0);
+    scheduleRender(nextTime, {
+      phase, measure, beat, total: phaseMeasures(),
+      rand: currentRand, m: currentM, loop,
+    });
+    nextTime += beatDur();
+    if (!advance()) {
+      const endAt = nextTime;
+      running = false;
+      setTimeout(finish, Math.max(0, (endAt - c.currentTime) * 1000));
+      break;
+    }
+  }
+}
+
+const pendingRenders = [];
+function scheduleRender(time, state) {
+  const delay = Math.max(0, (time - audio().currentTime) * 1000);
+  pendingRenders.push(setTimeout(() => render(state), delay));
+}
+function clearRenders() {
+  pendingRenders.forEach(clearTimeout);
+  pendingRenders.length = 0;
+}
+
+// ---------- affichage ----------
+const PHASE_LABELS = { prep: "🫁 Préparation…", expire: "🌬️ EXPIRE", inspire: "🫁 INSPIRE" };
+const screen = document.getElementById("screen");
+const beatsRow = document.getElementById("beats-row");
+
+function buildBeatDots() {
+  beatsRow.innerHTML = "";
+  for (let i = 0; i < cfg.beats; i++) {
+    const d = document.createElement("div");
+    d.className = "b";
+    beatsRow.appendChild(d);
+  }
+}
+
+function render(s) {
+  screen.className = s.phase;
+  const ph = document.getElementById("phase");
+  ph.className = s.phase;
+  ph.textContent = PHASE_LABELS[s.phase];
+  document.getElementById("mesure").textContent =
+    `Mesure ${s.measure + 1} / ${s.total}` + (s.phase === "prep" ? "" : ` — boucle ${s.loop + 1}`);
+  const big = document.getElementById("bignum");
+  if (s.phase === "expire") {
+    big.className = "";
+    big.textContent = s.rand;
+  } else {
+    big.className = "dim";
+    big.textContent = s.phase === "inspire" ? "inspire…" : "prépare-toi";
+  }
+  [...beatsRow.children].forEach((d, i) => d.classList.toggle("on", i === s.beat));
+  document.getElementById("info").textContent =
+    cfg.mode === "dim" ? `Mode dégressif — inspiration actuelle : ${s.m} mesure${s.m > 1 ? "s" : ""}`
+                       : "Mode statique — Stop pour arrêter";
+}
+
+function finish() {
+  clearInterval(timer); timer = null;
+  clearRenders();
+  screen.className = "done";
+  const ph = document.getElementById("phase");
+  ph.className = "done";
+  ph.textContent = "✅ Terminé, bravo !";
+  document.getElementById("mesure").textContent = `${loop} boucle${loop > 1 ? "s" : ""} complétée${loop > 1 ? "s" : ""}`;
+  const big = document.getElementById("bignum");
+  big.className = "dim"; big.textContent = "👏";
+  [...beatsRow.children].forEach(d => d.classList.remove("on"));
+  document.getElementById("info").textContent = "";
+  setButtons(false);
+}
+
+function setButtons(isRunning) {
+  document.getElementById("start").disabled = isRunning;
+  document.getElementById("stop").disabled = !isRunning;
+}
+
+// ---------- start / stop ----------
+document.getElementById("start").addEventListener("click", () => {
+  const c = audio();
+  phase = "prep"; measure = 0; beat = 0; loop = 0;
+  currentM = cfg.m;
+  currentRand = 1 + Math.floor(Math.random() * 5);
+  nextTime = c.currentTime + 0.15;
+  buildBeatDots();
+  running = true;
+  setButtons(true);
+  clearRenders();
+  timer = setInterval(schedulerTick, LOOKAHEAD_MS);
+  schedulerTick();
+});
+
+document.getElementById("stop").addEventListener("click", () => {
+  running = false;
+  clearInterval(timer); timer = null;
+  clearRenders();
+  screen.className = "";
+  const ph = document.getElementById("phase");
+  ph.className = ""; ph.textContent = "Prêt";
+  document.getElementById("mesure").innerHTML = "&nbsp;";
+  const big = document.getElementById("bignum");
+  big.className = "dim"; big.textContent = "—";
+  [...beatsRow.children].forEach(d => d.classList.remove("on"));
+  document.getElementById("info").innerHTML = "&nbsp;";
+  setButtons(false);
+});
+
+buildBeatDots();
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>
