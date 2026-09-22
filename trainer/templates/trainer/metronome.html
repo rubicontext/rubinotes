@@ -113,7 +113,7 @@
 <div class="sub">
   Cycle : <b style="color:var(--expire)">expiration N mesures</b> →
   <b style="color:var(--inspire)">inspiration M mesures</b>, en boucle.
-  À chaque mesure d'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand.
+  Pendant l'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand et change tous les T temps.
 </div>
 
 <div class="card">
@@ -135,8 +135,8 @@
       </div>
     </div>
     <div class="field">
-      <label>Tempo : <b id="bpm-val">80</b> bpm</label>
-      <input type="range" id="bpm" min="40" max="160" step="2" value="80">
+      <label>Tempo : <b id="bpm-val">50</b> bpm</label>
+      <input type="range" id="bpm" min="40" max="160" step="2" value="50">
     </div>
     <div class="field">
       <label>Temps / mesure</label>
@@ -144,6 +144,19 @@
         <option value="2">2</option>
         <option value="3">3</option>
         <option value="4" selected>4</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Temps / random (T)</label>
+      <select id="randt">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
       </select>
     </div>
     <div class="field">
@@ -174,7 +187,9 @@
   <b>Comment ça marche.</b> Une mesure de <b style="color:var(--prep)">préparation</b> (inspire un bon coup),
   puis <b class="ex">EXPIRE</b> pendant N mesures — le grand chiffre change à chaque mesure
   (utilise-le comme consigne : nombre de « tch », de notes, de pulsations à chanter…) —
-  puis <b class="in">INSPIRE</b> pendant M mesures, et on boucle.<br>
+  puis <b class="in">INSPIRE</b> pendant M mesures, et on boucle.
+  Le grand chiffre est retiré <b>tous les T temps</b> (réglage « Temps / random » — T = 4 en 4/4
+  revient à un chiffre par mesure).<br>
   <b>Statique</b> : M ne change jamais (ex. 4-4, 4-4, 4-4…).
   <b>Dégressif</b> : M diminue de 1 à chaque boucle — l'inspiration se raccourcit
   (ex. 4-4, 4-3, 4-2, 4-1) — puis on repart au M initial, et ainsi de suite. 💪
@@ -185,19 +200,22 @@
 // ---------- réglages (persistants) ----------
 const cfg = {
   n: +(localStorage.getItem("metro-n") || 4),
-  m: +(localStorage.getItem("metro-m") || 2),
-  bpm: +(localStorage.getItem("metro-bpm") || 80),
+  m: +(localStorage.getItem("metro-m") || 4),
+  bpm: +(localStorage.getItem("metro-bpm") || 50),
   beats: +(localStorage.getItem("metro-beats") || 4),
+  randt: +(localStorage.getItem("metro-randt") || 4),
   mode: localStorage.getItem("metro-mode") || "static",
 };
 cfg.n = Math.min(8, Math.max(1, cfg.n));
 cfg.m = Math.min(8, Math.max(1, cfg.m));
+cfg.randt = Math.min(8, Math.max(1, cfg.randt));
 
 function saveCfg() {
   localStorage.setItem("metro-n", cfg.n);
   localStorage.setItem("metro-m", cfg.m);
   localStorage.setItem("metro-bpm", cfg.bpm);
   localStorage.setItem("metro-beats", cfg.beats);
+  localStorage.setItem("metro-randt", cfg.randt);
   localStorage.setItem("metro-mode", cfg.mode);
 }
 
@@ -207,6 +225,7 @@ function syncCfgUi() {
   document.getElementById("bpm").value = cfg.bpm;
   document.getElementById("bpm-val").textContent = cfg.bpm;
   document.getElementById("beats").value = cfg.beats;
+  document.getElementById("randt").value = cfg.randt;
   document.querySelector(`input[name="mode"][value="${cfg.mode}"]`).checked = true;
   document.getElementById("lbl-static").classList.toggle("sel", cfg.mode === "static");
   document.getElementById("lbl-dim").classList.toggle("sel", cfg.mode === "dim");
@@ -222,6 +241,9 @@ document.getElementById("bpm").addEventListener("input", e => {
 });
 document.getElementById("beats").addEventListener("change", e => {
   cfg.beats = +e.target.value; saveCfg(); syncCfgUi();
+});
+document.getElementById("randt").addEventListener("change", e => {
+  cfg.randt = +e.target.value; saveCfg(); syncCfgUi();
 });
 document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => {
   cfg.mode = r.value; saveCfg(); syncCfgUi();
@@ -279,24 +301,33 @@ function phaseMeasures() {
 }
 
 // avance d'un temps — les deux modes bouclent sans fin (Stop pour arrêter)
+function rand5() { return 1 + Math.floor(Math.random() * 5); }
+let expireBeats = 0;   // temps écoulés depuis le dernier tirage (compte en continu sur l'expiration)
+
+function enterExpire() { phase = "expire"; expireBeats = 0; currentRand = rand5(); }
+
 function advance() {
   beat++;
-  if (beat < cfg.beats) return;
-  beat = 0; measure++;
-  if (measure < phaseMeasures()) {
-    if (phase === "expire") currentRand = 1 + Math.floor(Math.random() * 5);
-    return;
+  if (beat >= cfg.beats) {
+    beat = 0; measure++;
+    if (measure >= phaseMeasures()) {
+      measure = 0;
+      if (phase === "prep") { enterExpire(); return; }
+      if (phase === "expire") { phase = "inspire"; return; }
+      // fin d'inspiration = fin de boucle
+      loop++;
+      if (cfg.mode === "dim") {
+        currentM--;
+        if (currentM <= 0) currentM = cfg.m;   // après N-1, on repart au M initial
+      }
+      enterExpire(); return;
+    }
   }
-  measure = 0;
-  if (phase === "prep") { phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5); return; }
-  if (phase === "expire") { phase = "inspire"; return; }
-  // fin d'inspiration = fin de boucle
-  loop++;
-  if (cfg.mode === "dim") {
-    currentM--;
-    if (currentM <= 0) currentM = cfg.m;   // après N-1, on repart au M initial
+  // temps suivant dans la même phase : le random change tous les T temps
+  if (phase === "expire") {
+    expireBeats++;
+    if (expireBeats >= cfg.randt) { expireBeats = 0; currentRand = rand5(); }
   }
-  phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5);
 }
 
 function schedulerTick() {
