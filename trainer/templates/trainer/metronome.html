@@ -173,8 +173,8 @@
   Le grand chiffre est retiré <b>tous les T temps</b> (réglage « Temps / random » — T = 4 en 4/4
   revient à un chiffre par mesure).<br>
   <b>Statique</b> : M ne change jamais (ex. 4-4, 4-4, 4-4…).
-  <b>Dégressif</b> : M diminue de 1 à chaque boucle — l'inspiration se raccourcit
-  (ex. 4-4, 4-3, 4-2, 4-1) — puis on repart au M initial, et ainsi de suite. 💪
+  <b>Dégressif</b> : chaque valeur de M est jouée <b>4 cycles</b>, puis l'inspiration se
+  raccourcit d'une mesure (ex. 4 × 4-4, 4 × 4-3, 4 × 4-2, 4 × 4-1), puis on repart au M initial. 💪
   Dans les deux modes, ça tourne sans fin : Stop pour arrêter.
 </div>
 
@@ -276,8 +276,9 @@ function click(time, phase, accent) {
 
 // ---------- séquenceur (lookahead) ----------
 const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD = 0.12;
+const CYCLES_PER_M = 4;   // dégressif : chaque valeur de M est jouée 4 cycles
 let running = false, timer = null;
-let phase, measure, beat, currentM, loop, nextTime, currentRand;
+let phase, measure, beat, currentM, cyclesAtM, loop, nextTime, currentRand;
 
 function beatDur() { return 60 / cfg.bpm; }
 
@@ -302,8 +303,12 @@ function advance() {
       // fin d'inspiration = fin de boucle
       loop++;
       if (cfg.mode === "dim") {
-        currentM--;
-        if (currentM <= 0) currentM = cfg.m;   // après N-1, on repart au M initial
+        cyclesAtM++;
+        if (cyclesAtM >= CYCLES_PER_M) {       // 4 cycles à ce M, on descend
+          cyclesAtM = 0;
+          currentM--;
+          if (currentM <= 0) currentM = cfg.m; // après 4 × N-1, on repart au M initial
+        }
       }
       enterExpire(); return;
     }
@@ -321,7 +326,7 @@ function schedulerTick() {
     click(nextTime, phase, beat === 0);
     scheduleRender(nextTime, {
       phase, measure, beat, total: phaseMeasures(),
-      rand: currentRand, m: currentM, loop,
+      rand: currentRand, m: currentM, cyc: cyclesAtM, loop,
     });
     nextTime += beatDur();
     advance();
@@ -369,7 +374,7 @@ function render(s) {
   }
   [...beatsRow.children].forEach((d, i) => d.classList.toggle("on", i === s.beat));
   document.getElementById("info").textContent =
-    cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m}` + (s.m === 1 ? " (prochain cycle : retour à " + cfg.n + "-" + cfg.m + ")" : "")
+    cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m} (${s.cyc + 1}/4)` + (s.m === 1 && s.cyc === 3 ? ` puis retour à ${cfg.n}-${cfg.m}` : "")
                        : "Mode statique — Stop pour arrêter";
 }
 
@@ -382,7 +387,7 @@ function setButtons(isRunning) {
 document.getElementById("start").addEventListener("click", () => {
   const c = audio();
   phase = "prep"; measure = 0; beat = 0; loop = 0;
-  currentM = cfg.m;
+  currentM = cfg.m; cyclesAtM = 0;
   currentRand = 1 + Math.floor(Math.random() * 5);
   nextTime = c.currentTime + 0.15;
   buildBeatDots();
