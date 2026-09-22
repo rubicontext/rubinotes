@@ -175,9 +175,10 @@
   puis <b class="ex">EXPIRE</b> pendant N mesures — le grand chiffre change à chaque mesure
   (utilise-le comme consigne : nombre de « tch », de notes, de pulsations à chanter…) —
   puis <b class="in">INSPIRE</b> pendant M mesures, et on boucle.<br>
-  <b>Statique</b> : M ne change jamais, boucle infinie (Stop pour arrêter).
-  <b>Dégressif</b> : M diminue de 1 à chaque boucle — l'inspiration se raccourcit — et
-  la séance s'arrête toute seule après la boucle à M = 1. 💪
+  <b>Statique</b> : M ne change jamais (ex. 4-4, 4-4, 4-4…).
+  <b>Dégressif</b> : M diminue de 1 à chaque boucle — l'inspiration se raccourcit
+  (ex. 4-4, 4-3, 4-2, 4-1) — puis on repart au M initial, et ainsi de suite. 💪
+  Dans les deux modes, ça tourne sans fin : Stop pour arrêter.
 </div>
 
 <script>
@@ -277,30 +278,25 @@ function phaseMeasures() {
   return phase === "prep" ? 1 : (phase === "expire" ? cfg.n : currentM);
 }
 
-// avance d'un temps; renvoie false si la séance est terminée (mode dégressif)
+// avance d'un temps — les deux modes bouclent sans fin (Stop pour arrêter)
 function advance() {
   beat++;
-  if (beat < cfg.beats) return true;
+  if (beat < cfg.beats) return;
   beat = 0; measure++;
   if (measure < phaseMeasures()) {
     if (phase === "expire") currentRand = 1 + Math.floor(Math.random() * 5);
-    return true;
+    return;
   }
   measure = 0;
-  if (phase === "prep") { phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5); return true; }
-  if (phase === "expire") {
-    if (currentM > 0) { phase = "inspire"; return true; }
-    // M déjà à 0 (dégressif) : la boucle s'arrête après l'expiration
-    return false;
-  }
+  if (phase === "prep") { phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5); return; }
+  if (phase === "expire") { phase = "inspire"; return; }
   // fin d'inspiration = fin de boucle
   loop++;
   if (cfg.mode === "dim") {
     currentM--;
-    if (currentM <= 0) return false;   // « arrivé à 0 on stoppe »
+    if (currentM <= 0) currentM = cfg.m;   // après N-1, on repart au M initial
   }
   phase = "expire"; currentRand = 1 + Math.floor(Math.random() * 5);
-  return true;
 }
 
 function schedulerTick() {
@@ -312,12 +308,7 @@ function schedulerTick() {
       rand: currentRand, m: currentM, loop,
     });
     nextTime += beatDur();
-    if (!advance()) {
-      const endAt = nextTime;
-      running = false;
-      setTimeout(finish, Math.max(0, (endAt - c.currentTime) * 1000));
-      break;
-    }
+    advance();
   }
 }
 
@@ -362,23 +353,8 @@ function render(s) {
   }
   [...beatsRow.children].forEach((d, i) => d.classList.toggle("on", i === s.beat));
   document.getElementById("info").textContent =
-    cfg.mode === "dim" ? `Mode dégressif — inspiration actuelle : ${s.m} mesure${s.m > 1 ? "s" : ""}`
+    cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m}` + (s.m === 1 ? " (prochain cycle : retour à " + cfg.n + "-" + cfg.m + ")" : "")
                        : "Mode statique — Stop pour arrêter";
-}
-
-function finish() {
-  clearInterval(timer); timer = null;
-  clearRenders();
-  screen.className = "done";
-  const ph = document.getElementById("phase");
-  ph.className = "done";
-  ph.textContent = "✅ Terminé, bravo !";
-  document.getElementById("mesure").textContent = `${loop} boucle${loop > 1 ? "s" : ""} complétée${loop > 1 ? "s" : ""}`;
-  const big = document.getElementById("bignum");
-  big.className = "dim"; big.textContent = "👏";
-  [...beatsRow.children].forEach(d => d.classList.remove("on"));
-  document.getElementById("info").textContent = "";
-  setButtons(false);
 }
 
 function setButtons(isRunning) {
