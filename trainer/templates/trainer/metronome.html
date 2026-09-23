@@ -75,6 +75,7 @@
     min-height: 1.05em;
   }
   #bignum.dim { color: #d0d8d6; font-size: 3.2rem; padding: .45em 0; }
+  #bignum .next { font-size: 2.2rem; color: #9db8b2; font-weight: normal; vertical-align: middle; margin-left: .15em; }
   .beats { display: flex; gap: 12px; justify-content: center; margin-top: 10px; min-height: 18px; }
   .beats .b { width: 15px; height: 15px; border-radius: 50%; background: #e2e0da; transition: transform .08s; }
   .beats .b:first-child { width: 19px; height: 19px; border: 2px solid #b9b5ac; }
@@ -114,7 +115,8 @@
 <div class="sub">
   Cycle : <b style="color:var(--expire)">expiration N mesures</b> →
   <b style="color:var(--inspire)">inspiration M mesures</b>, en boucle.
-  Pendant l'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand et change tous les T temps.
+  Pendant l'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand — le prochain est
+  annoncé entre parenthèses — et change tous les T temps. <b>M = 0</b> : pas d'inspiration, métronome continu.
 </div>
 
 <div class="card">
@@ -189,7 +191,7 @@ const cfg = {
   mode: localStorage.getItem("metro-mode") || "static",
 };
 cfg.n = Math.min(8, Math.max(1, cfg.n));
-cfg.m = Math.min(8, Math.max(1, cfg.m));
+cfg.m = Math.min(8, Math.max(0, cfg.m));   // 0 = pas d'inspiration (métronome continu)
 cfg.randt = Math.min(8, Math.max(1, cfg.randt));
 
 function saveCfg() {
@@ -204,7 +206,7 @@ function saveCfg() {
 // les 4 listes déroulantes (clé cfg, id, min, max) — toutes à 4 par défaut
 const SELECTS = [
   ["n", "sel-n", 1, 8],
-  ["m", "sel-m", 1, 8],
+  ["m", "sel-m", 0, 8],   // 0 = pas d'inspiration
   ["beats", "beats", 2, 8],
   ["randt", "randt", 1, 8],
 ];
@@ -278,7 +280,7 @@ function click(time, phase, accent) {
 const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD = 0.12;
 const CYCLES_PER_M = 4;   // dégressif : chaque valeur de M est jouée 4 cycles
 let running = false, timer = null;
-let phase, measure, beat, currentM, cyclesAtM, loop, nextTime, currentRand;
+let phase, measure, beat, currentM, cyclesAtM, loop, nextTime, currentRand, nextRand;
 
 function beatDur() { return 60 / cfg.bpm; }
 
@@ -290,7 +292,10 @@ function phaseMeasures() {
 function rand5() { return 1 + Math.floor(Math.random() * 5); }
 let expireBeats = 0;   // temps écoulés depuis le dernier tirage (compte en continu sur l'expiration)
 
-function enterExpire() { phase = "expire"; expireBeats = 0; currentRand = rand5(); }
+// le prochain tirage est pré-calculé pour être annoncé entre parenthèses
+function shiftRand() { currentRand = nextRand; nextRand = rand5(); }
+
+function enterExpire() { phase = "expire"; expireBeats = 0; shiftRand(); }
 
 function advance() {
   beat++;
@@ -299,8 +304,8 @@ function advance() {
     if (measure >= phaseMeasures()) {
       measure = 0;
       if (phase === "prep") { enterExpire(); return; }
-      if (phase === "expire") { phase = "inspire"; return; }
-      // fin d'inspiration = fin de boucle
+      if (phase === "expire" && currentM > 0) { phase = "inspire"; return; }
+      // fin d'inspiration (ou expiration sans inspiration, M=0) = fin de boucle
       loop++;
       if (cfg.mode === "dim") {
         cyclesAtM++;
@@ -316,7 +321,7 @@ function advance() {
   // temps suivant dans la même phase : le random change tous les T temps
   if (phase === "expire") {
     expireBeats++;
-    if (expireBeats >= cfg.randt) { expireBeats = 0; currentRand = rand5(); }
+    if (expireBeats >= cfg.randt) { expireBeats = 0; shiftRand(); }
   }
 }
 
@@ -326,7 +331,7 @@ function schedulerTick() {
     click(nextTime, phase, beat === 0);
     scheduleRender(nextTime, {
       phase, measure, beat, total: phaseMeasures(),
-      rand: currentRand, m: currentM, cyc: cyclesAtM, loop,
+      rand: currentRand, next: nextRand, m: currentM, cyc: cyclesAtM, loop,
     });
     nextTime += beatDur();
     advance();
@@ -367,15 +372,16 @@ function render(s) {
   const big = document.getElementById("bignum");
   if (s.phase === "expire") {
     big.className = "";
-    big.textContent = s.rand;
+    big.innerHTML = s.rand + ' <span class="next">(' + s.next + ')</span>';
   } else {
     big.className = "dim";
     big.textContent = s.phase === "inspire" ? "inspire…" : "prépare-toi";
   }
   [...beatsRow.children].forEach((d, i) => d.classList.toggle("on", i === s.beat));
   document.getElementById("info").textContent =
-    cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m} (${s.cyc + 1}/4)` + (s.m === 1 && s.cyc === 3 ? ` puis retour à ${cfg.n}-${cfg.m}` : "")
-                       : "Mode statique — Stop pour arrêter";
+    s.m === 0 ? "Métronome continu (M = 0 : pas d'inspiration)"
+    : cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m} (${s.cyc + 1}/4)` + (s.m === 1 && s.cyc === 3 ? ` puis retour à ${cfg.n}-${cfg.m}` : "")
+    : "Mode statique — Stop pour arrêter";
 }
 
 function setButtons(isRunning) {
@@ -387,7 +393,7 @@ function setButtons(isRunning) {
 document.getElementById("start").addEventListener("click", () => {
   const c = audio();
   phase = "prep"; measure = 0; beat = 0; loop = 0;
-  currentM = cfg.m; cyclesAtM = 0;
+  currentM = cfg.m; cyclesAtM = 0; nextRand = rand5();
   currentRand = 1 + Math.floor(Math.random() * 5);
   nextTime = c.currentTime + 0.15;
   buildBeatDots();
