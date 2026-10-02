@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Métronome de souffle — exercices de chant</title>
+<title>Métronome — double tempo</title>
 <meta name="theme-color" content="#2563eb">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
-  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --ok:#16a34a;
-          --expire:#0d9488; --inspire:#2563eb; --prep:#b45309; }
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --bpm2:#e8590c; }
   * { box-sizing: border-box; }
   body {
     font-family: Georgia, "Times New Roman", serif;
@@ -32,61 +31,38 @@
   }
 
   /* ----- réglages ----- */
-  .cfg-selects {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 14px;
-    margin-bottom: 14px;
-  }
-  @media (max-width: 480px) { .cfg-selects { grid-template-columns: repeat(2, 1fr); } }
-  .cfg { display: flex; flex-wrap: wrap; gap: 14px 26px; justify-content: center; align-items: flex-end; }
+  .cfg-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 22px; }
   .field { text-align: center; }
-  .field label { display: block; font-size: .82rem; color: #666; margin-bottom: 5px; }
-  .field select {
+  .field label { display: block; font-size: .85rem; color: #666; margin-bottom: 5px; }
+  .field label b { font-size: 1.05rem; color: var(--ink); }
+  .field input[type=range] { width: 100%; accent-color: var(--accent); }
+  .field.f-bpm2 input[type=range] { accent-color: var(--bpm2); }
+  .field select, .field input[type=number] {
     font-family: inherit; font-size: 1.2rem; font-weight: bold; text-align: center;
     padding: 9px 6px; border-radius: 8px; border: 1px solid #ccc; width: 100%;
     background: white; color: var(--ink);
   }
-  .cfg input[type=range] { width: 150px; accent-color: var(--accent); }
-  .modes { display: flex; gap: 8px; justify-content: center; }
-  .modes label {
-    display: inline-flex; align-items: center; gap: 6px; font-size: .95rem;
-    border: 1px solid #ccc; border-radius: 18px; padding: 8px 14px; cursor: pointer;
-    touch-action: manipulation;
-  }
-  .modes input { accent-color: var(--accent); }
-  .modes label.sel { border-color: var(--accent); background: #eff6ff; color: var(--accent); font-weight: bold; }
+  .hint { font-size: .78rem; color: #999; margin-top: 3px; }
 
-  /* ----- écran principal ----- */
-  #screen {
-    text-align: center; border-radius: 12px; padding: 18px 10px 22px;
-    transition: background .25s;
-  }
-  #screen.prep    { background: #fff7ed; }
-  #screen.expire  { background: #ecfdf5; }
-  #screen.inspire { background: #eff6ff; }
-  #screen.done    { background: #f0fdf4; }
-  #phase { font-size: 1.9rem; letter-spacing: .06em; margin: 2px 0 2px; }
-  #phase.prep    { color: var(--prep); }
-  #phase.expire  { color: var(--expire); font-weight: bold; }
-  #phase.inspire { color: var(--inspire); font-weight: bold; }
-  #phase.done    { color: var(--ok); font-weight: bold; }
-  #mesure { font-size: 1rem; color: #666; min-height: 1.3em; }
-  #bignum {
-    font-size: 7.5rem; line-height: 1.05; font-weight: bold; color: var(--expire);
-    min-height: 1.05em;
-  }
-  #bignum.dim { color: #d0d8d6; font-size: 3.2rem; padding: .45em 0; }
-  #bignum .next { font-size: 2.2rem; color: #9db8b2; font-weight: normal; vertical-align: middle; margin-left: .15em; }
-  .beats { display: flex; gap: 12px; justify-content: center; margin-top: 10px; min-height: 18px; }
+  /* ----- écran ----- */
+  #screen { text-align: center; border-radius: 12px; padding: 16px 10px 20px; transition: background .25s; }
+  #screen.run1 { background: #eff6ff; }
+  #screen.run2 { background: #fff4ec; }
+  #curbpm { font-size: 5.6rem; line-height: 1.05; font-weight: bold; color: var(--accent); min-height: 1.05em; }
+  #screen.run2 #curbpm { color: var(--bpm2); }
+  #curbpm .unit { font-size: 1.4rem; font-weight: normal; color: #94a0ac; }
+  #whichbpm { font-size: 1rem; color: #666; min-height: 1.3em; }
+  #whichbpm .b1 { color: var(--accent); font-weight: bold; }
+  #whichbpm .b2 { color: var(--bpm2); font-weight: bold; }
+  #mesure { font-size: 1rem; color: #666; min-height: 1.3em; margin-top: 2px; }
+  .beats { display: flex; gap: 12px; justify-content: center; margin-top: 12px; min-height: 20px; }
   .beats .b { width: 15px; height: 15px; border-radius: 50%; background: #e2e0da; transition: transform .08s; }
   .beats .b:first-child { width: 19px; height: 19px; border: 2px solid #b9b5ac; }
-  .beats .b.on { transform: scale(1.35); }
+  .beats .b.on { transform: scale(1.35); background: var(--accent); }
+  #screen.run2 .beats .b.on { background: var(--bpm2); }
   .beats .b:first-child.on { transform: scale(1.5); border-color: currentColor; }
-  #screen.expire  .beats .b.on { background: var(--expire); }
-  #screen.inspire .beats .b.on { background: var(--inspire); }
-  #screen.prep    .beats .b.on { background: var(--prep); }
-  #info { font-size: .88rem; color: #888; margin-top: 10px; min-height: 1.3em; }
 
-  .actions { display: flex; gap: 12px; justify-content: center; margin-top: 4px; }
+  .actions { display: flex; gap: 12px; justify-content: center; margin-top: 8px; }
   .actions button {
     font-family: inherit; font-size: 1.15rem; padding: 13px 34px;
     border: 1px solid var(--accent); background: var(--accent); color: white;
@@ -94,13 +70,8 @@
   }
   .actions button.stop { background: white; color: #dc2626; border-color: #dc2626; }
   .actions button:disabled { opacity: .4; cursor: default; }
-
   .help { font-size: .85rem; color: #777; line-height: 1.55; }
-  .help b.ex { color: var(--expire); } .help b.in { color: var(--inspire); }
-  @media (max-width: 480px) {
-    #bignum { font-size: 5.6rem; }
-    .cfg { gap: 10px 18px; }
-  }
+  @media (max-width: 480px) { #curbpm { font-size: 4.2rem; } }
 </style>
 </head>
 <body>
@@ -108,58 +79,45 @@
 <nav class="topnav">
   <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
   <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
-  <a href="/echecs">Échecs</a><a href="/chant">Chant</a><a href="/metronome" class="on">Métronome</a>
+  <a href="/echecs">Échecs</a><a href="/chant">Chant</a>
+  <a href="/metronome" class="on">Métronome</a><a href="/accordeur">Accordeur</a>
 </nav>
 
-<h1>🌬️ Métronome de souffle</h1>
+<h1>🎵 Métronome</h1>
 <div class="sub">
-  Cycle : <b style="color:var(--expire)">expiration N mesures</b> →
-  <b style="color:var(--inspire)">inspiration M mesures</b>, en boucle.
-  Pendant l'expiration, un <b>nombre aléatoire 1-5</b> s'affiche en grand — le prochain est
-  annoncé entre parenthèses — et change tous les T temps. <b>M = 0</b> : pas d'inspiration, métronome continu.
+  Un métronome simple, avec un <b>second tempo</b> optionnel :
+  après <b>X mesures</b>, il passe de <b style="color:var(--accent)">BPM 1</b> à
+  <b style="color:var(--bpm2)">BPM 2</b>.
 </div>
 
 <div class="card">
-  <div class="cfg-selects">
+  <div class="cfg-grid">
     <div class="field">
-      <label>Expiration (N)</label>
-      <select id="sel-n"></select>
+      <label>BPM 1 : <b id="bpm1-val">80</b></label>
+      <input type="range" id="bpm1" min="30" max="240" step="1" value="80">
     </div>
-    <div class="field">
-      <label>Inspiration (M)</label>
-      <select id="sel-m"></select>
+    <div class="field f-bpm2">
+      <label>BPM 2 : <b id="bpm2-val">120</b></label>
+      <input type="range" id="bpm2" min="30" max="240" step="1" value="120">
     </div>
     <div class="field">
       <label>Temps / mesure</label>
       <select id="beats"></select>
     </div>
     <div class="field">
-      <label>Temps / random (T)</label>
-      <select id="randt"></select>
-    </div>
-  </div>
-  <div class="cfg">
-    <div class="field">
-      <label>Tempo : <b id="bpm-val">50</b> bpm</label>
-      <input type="range" id="bpm" min="40" max="160" step="2" value="50">
-    </div>
-    <div class="field">
-      <label>Mode</label>
-      <div class="modes">
-        <label id="lbl-static" class="sel"><input type="radio" name="mode" value="static" checked>Statique</label>
-        <label id="lbl-dim"><input type="radio" name="mode" value="dim">Dégressif</label>
-      </div>
+      <label>Mesures avant changement</label>
+      <input type="number" id="changeat" min="0" max="999" step="1" value="0" inputmode="numeric">
+      <div class="hint">0 = désactivé (on reste sur BPM 1)</div>
     </div>
   </div>
 </div>
 
 <div class="card">
   <div id="screen">
-    <div id="phase">Prêt</div>
+    <div id="curbpm" class="dim">—</div>
+    <div id="whichbpm">&nbsp;</div>
     <div id="mesure">&nbsp;</div>
-    <div id="bignum" class="dim">—</div>
     <div class="beats" id="beats-row"></div>
-    <div id="info">&nbsp;</div>
   </div>
   <div class="actions">
     <button id="start">▶ Démarrer</button>
@@ -168,98 +126,66 @@
 </div>
 
 <div class="card help">
-  <b>Comment ça marche.</b> Une mesure de <b style="color:var(--prep)">préparation</b> (inspire un bon coup),
-  puis <b class="ex">EXPIRE</b> pendant N mesures — le grand chiffre change à chaque mesure
-  (utilise-le comme consigne : nombre de « tch », de notes, de pulsations à chanter…) —
-  puis <b class="in">INSPIRE</b> pendant M mesures, et on boucle.
-  Le grand chiffre est retiré <b>tous les T temps</b> (réglage « Temps / random » — T = 4 en 4/4
-  revient à un chiffre par mesure).<br>
-  <b>Statique</b> : M ne change jamais (ex. 4-4, 4-4, 4-4…).
-  <b>Dégressif</b> : chaque valeur de M est jouée <b>4 cycles</b>, puis l'inspiration se
-  raccourcit d'une mesure (ex. 4 × 4-4, 4 × 4-3, 4 × 4-2, 4 × 4-1), puis on repart au M initial. 💪
-  Dans les deux modes, ça tourne sans fin : Stop pour arrêter.
+  <b>Exemple.</b> BPM 1 = 80, BPM 2 = 120, changement = 16 : le métronome bat 16 mesures à 80,
+  puis bascule à 120 et y reste (pratique pour travailler lentement puis au tempo cible).
+  Premier temps de chaque mesure = « ding » cloche, les autres = « tic ».
 </div>
 
 <script>
 // ---------- réglages (persistants) ----------
 const cfg = {
-  n: +(localStorage.getItem("metro-n") || 4),
-  m: +(localStorage.getItem("metro-m") || 4),
-  bpm: +(localStorage.getItem("metro-bpm") || 50),
-  beats: +(localStorage.getItem("metro-beats") || 4),
-  randt: +(localStorage.getItem("metro-randt") || 4),
-  mode: localStorage.getItem("metro-mode") || "static",
+  bpm1: +(localStorage.getItem("metro2-bpm1") || 80),
+  bpm2: +(localStorage.getItem("metro2-bpm2") || 120),
+  beats: +(localStorage.getItem("metro2-beats") || 4),
+  changeAt: +(localStorage.getItem("metro2-change") || 0),
 };
-cfg.n = Math.min(8, Math.max(1, cfg.n));
-cfg.m = Math.min(8, Math.max(0, cfg.m));   // 0 = pas d'inspiration (métronome continu)
-cfg.randt = Math.min(8, Math.max(1, cfg.randt));
-
 function saveCfg() {
-  localStorage.setItem("metro-n", cfg.n);
-  localStorage.setItem("metro-m", cfg.m);
-  localStorage.setItem("metro-bpm", cfg.bpm);
-  localStorage.setItem("metro-beats", cfg.beats);
-  localStorage.setItem("metro-randt", cfg.randt);
-  localStorage.setItem("metro-mode", cfg.mode);
+  localStorage.setItem("metro2-bpm1", cfg.bpm1);
+  localStorage.setItem("metro2-bpm2", cfg.bpm2);
+  localStorage.setItem("metro2-beats", cfg.beats);
+  localStorage.setItem("metro2-change", cfg.changeAt);
 }
 
-// les 4 listes déroulantes (clé cfg, id, min, max) — toutes à 4 par défaut
-const SELECTS = [
-  ["n", "sel-n", 1, 8],
-  ["m", "sel-m", 0, 8],   // 0 = pas d'inspiration
-  ["beats", "beats", 2, 8],
-  ["randt", "randt", 1, 8],
-];
-for (const [key, id, min, max] of SELECTS) {
-  const sel = document.getElementById(id);
-  for (let v = min; v <= max; v++) {
-    const o = document.createElement("option");
-    o.value = v; o.textContent = v;
-    sel.appendChild(o);
-  }
-  sel.addEventListener("change", () => { cfg[key] = +sel.value; saveCfg(); syncCfgUi(); });
+const beatsSel = document.getElementById("beats");
+for (let v = 2; v <= 8; v++) {
+  const o = document.createElement("option");
+  o.value = v; o.textContent = v;
+  beatsSel.appendChild(o);
 }
 
 function syncCfgUi() {
-  for (const [key, id] of SELECTS) document.getElementById(id).value = cfg[key];
-  document.getElementById("bpm").value = cfg.bpm;
-  document.getElementById("bpm-val").textContent = cfg.bpm;
-  document.querySelector(`input[name="mode"][value="${cfg.mode}"]`).checked = true;
-  document.getElementById("lbl-static").classList.toggle("sel", cfg.mode === "static");
-  document.getElementById("lbl-dim").classList.toggle("sel", cfg.mode === "dim");
+  document.getElementById("bpm1").value = cfg.bpm1;
+  document.getElementById("bpm1-val").textContent = cfg.bpm1;
+  document.getElementById("bpm2").value = cfg.bpm2;
+  document.getElementById("bpm2-val").textContent = cfg.bpm2;
+  beatsSel.value = cfg.beats;
+  document.getElementById("changeat").value = cfg.changeAt;
 }
-
-document.getElementById("bpm").addEventListener("input", e => {
-  cfg.bpm = +e.target.value; saveCfg(); syncCfgUi();
+document.getElementById("bpm1").addEventListener("input", e => { cfg.bpm1 = +e.target.value; saveCfg(); syncCfgUi(); });
+document.getElementById("bpm2").addEventListener("input", e => { cfg.bpm2 = +e.target.value; saveCfg(); syncCfgUi(); });
+beatsSel.addEventListener("change", e => { cfg.beats = +e.target.value; saveCfg(); syncCfgUi(); });
+document.getElementById("changeat").addEventListener("change", e => {
+  cfg.changeAt = Math.max(0, Math.min(999, +e.target.value || 0));
+  saveCfg(); syncCfgUi();
 });
-document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => {
-  cfg.mode = r.value; saveCfg(); syncCfgUi();
-}));
 syncCfgUi();
 
-// ---------- audio (Web Audio, zéro fichier) ----------
+// ---------- audio ----------
 let actx = null;
 function audio() {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
   if (actx.state === "suspended") actx.resume();
   return actx;
 }
-// Temps 2-3-4 : « tic » court (carré). Temps 1 : « ding » cloche (sinus +
-// harmonique, résonance longue) — timbre franchement différent, pas juste plus fort.
-const CLICK_FREQS = {
-  prep:    { accent: 1200, beat: 800 },
-  expire:  { accent: 660,  beat: 440 },   // grave/chaud : on chante dessus
-  inspire: { accent: 1568, beat: 1046 },  // aigu/clair : on inspire
-};
-function click(time, phase, accent) {
+// temps 1 = « ding » cloche (3 sinus harmoniques), autres temps = « tic » carré
+function click(time, accent, onBpm2) {
   const c = audio();
-  const freq = CLICK_FREQS[phase][accent ? "accent" : "beat"];
+  const base = onBpm2 ? 880 : 660;   // timbre léger différent après la bascule
   if (accent) {
-    // « ding » : fondamentale + quinte harmonique, décroissance de cloche
     for (const [mult, vol] of [[1, 0.32], [1.5, 0.12], [2.76, 0.06]]) {
       const o = c.createOscillator(), g = c.createGain();
       o.type = "sine";
-      o.frequency.value = freq * mult;
+      o.frequency.value = base * mult;
       g.gain.setValueAtTime(vol, time);
       g.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
       o.connect(g).connect(c.destination);
@@ -268,7 +194,7 @@ function click(time, phase, accent) {
   } else {
     const o = c.createOscillator(), g = c.createGain();
     o.type = "square";
-    o.frequency.value = freq;
+    o.frequency.value = base * (2 / 3);
     g.gain.setValueAtTime(0.13, time);
     g.gain.exponentialRampToValueAtTime(0.001, time + 0.06);
     o.connect(g).connect(c.destination);
@@ -278,62 +204,27 @@ function click(time, phase, accent) {
 
 // ---------- séquenceur (lookahead) ----------
 const LOOKAHEAD_MS = 25, SCHEDULE_AHEAD = 0.12;
-const CYCLES_PER_M = 4;   // dégressif : chaque valeur de M est jouée 4 cycles
 let running = false, timer = null;
-let phase, measure, beat, currentM, cyclesAtM, loop, nextTime, currentRand, nextRand;
+let beat, measureCount, onBpm2, nextTime;
 
-function beatDur() { return 60 / cfg.bpm; }
-
-function phaseMeasures() {
-  return phase === "prep" ? 1 : (phase === "expire" ? cfg.n : currentM);
-}
-
-// avance d'un temps — les deux modes bouclent sans fin (Stop pour arrêter)
-function rand5() { return 1 + Math.floor(Math.random() * 5); }
-let expireBeats = 0;   // temps écoulés depuis le dernier tirage (compte en continu sur l'expiration)
-
-// le prochain tirage est pré-calculé pour être annoncé entre parenthèses
-function shiftRand() { currentRand = nextRand; nextRand = rand5(); }
-
-function enterExpire() { phase = "expire"; expireBeats = 0; shiftRand(); }
+function currentBpm() { return onBpm2 ? cfg.bpm2 : cfg.bpm1; }
 
 function advance() {
   beat++;
   if (beat >= cfg.beats) {
-    beat = 0; measure++;
-    if (measure >= phaseMeasures()) {
-      measure = 0;
-      if (phase === "prep") { enterExpire(); return; }
-      if (phase === "expire" && currentM > 0) { phase = "inspire"; return; }
-      // fin d'inspiration (ou expiration sans inspiration, M=0) = fin de boucle
-      loop++;
-      if (cfg.mode === "dim") {
-        cyclesAtM++;
-        if (cyclesAtM >= CYCLES_PER_M) {       // 4 cycles à ce M, on descend
-          cyclesAtM = 0;
-          currentM--;
-          if (currentM <= 0) currentM = cfg.m; // après 4 × N-1, on repart au M initial
-        }
-      }
-      enterExpire(); return;
-    }
-  }
-  // temps suivant dans la même phase : le random change tous les T temps
-  if (phase === "expire") {
-    expireBeats++;
-    if (expireBeats >= cfg.randt) { expireBeats = 0; shiftRand(); }
+    beat = 0;
+    measureCount++;
+    // bascule BPM1 -> BPM2 après changeAt mesures (0 = désactivé)
+    if (!onBpm2 && cfg.changeAt > 0 && measureCount >= cfg.changeAt) onBpm2 = true;
   }
 }
 
 function schedulerTick() {
   const c = audio();
   while (running && nextTime < c.currentTime + SCHEDULE_AHEAD) {
-    click(nextTime, phase, beat === 0);
-    scheduleRender(nextTime, {
-      phase, measure, beat, total: phaseMeasures(),
-      rand: currentRand, next: nextRand, m: currentM, cyc: cyclesAtM, loop,
-    });
-    nextTime += beatDur();
+    click(nextTime, beat === 0, onBpm2);
+    scheduleRender(nextTime, { beat, measureCount, onBpm2 });
+    nextTime += 60 / currentBpm();
     advance();
   }
 }
@@ -343,13 +234,9 @@ function scheduleRender(time, state) {
   const delay = Math.max(0, (time - audio().currentTime) * 1000);
   pendingRenders.push(setTimeout(() => render(state), delay));
 }
-function clearRenders() {
-  pendingRenders.forEach(clearTimeout);
-  pendingRenders.length = 0;
-}
+function clearRenders() { pendingRenders.forEach(clearTimeout); pendingRenders.length = 0; }
 
 // ---------- affichage ----------
-const PHASE_LABELS = { prep: "🫁 Préparation…", expire: "🌬️ EXPIRE", inspire: "🫁 INSPIRE" };
 const screen = document.getElementById("screen");
 const beatsRow = document.getElementById("beats-row");
 
@@ -363,25 +250,21 @@ function buildBeatDots() {
 }
 
 function render(s) {
-  screen.className = s.phase;
-  const ph = document.getElementById("phase");
-  ph.className = s.phase;
-  ph.textContent = PHASE_LABELS[s.phase];
-  document.getElementById("mesure").textContent =
-    `Mesure ${s.measure + 1} / ${s.total}` + (s.phase === "prep" ? "" : ` — boucle ${s.loop + 1}`);
-  const big = document.getElementById("bignum");
-  if (s.phase === "expire") {
-    big.className = "";
-    big.innerHTML = s.rand + ' <span class="next">(' + s.next + ')</span>';
+  screen.className = s.onBpm2 ? "run2" : "run1";
+  const bpm = s.onBpm2 ? cfg.bpm2 : cfg.bpm1;
+  document.getElementById("curbpm").innerHTML = bpm + ' <span class="unit">bpm</span>';
+  const which = document.getElementById("whichbpm");
+  if (cfg.changeAt > 0) {
+    which.innerHTML = s.onBpm2
+      ? '<span class="b2">BPM 2</span> actif'
+      : '<span class="b1">BPM 1</span> — passage à <span class="b2">' + cfg.bpm2 + '</span> dans '
+        + (cfg.changeAt - s.measureCount) + ' mesure' + (cfg.changeAt - s.measureCount > 1 ? 's' : '');
   } else {
-    big.className = "dim";
-    big.textContent = s.phase === "inspire" ? "inspire…" : "prépare-toi";
+    which.innerHTML = '<span class="b1">BPM 1</span> (changement désactivé)';
   }
+  document.getElementById("mesure").textContent =
+    "Mesure " + (s.measureCount + 1) + " — temps " + (s.beat + 1) + "/" + cfg.beats;
   [...beatsRow.children].forEach((d, i) => d.classList.toggle("on", i === s.beat));
-  document.getElementById("info").textContent =
-    s.m === 0 ? "Métronome continu (M = 0 : pas d'inspiration)"
-    : cfg.mode === "dim" ? `Mode dégressif — cycle ${cfg.n}-${s.m} (${s.cyc + 1}/4)` + (s.m === 1 && s.cyc === 3 ? ` puis retour à ${cfg.n}-${cfg.m}` : "")
-    : "Mode statique — Stop pour arrêter";
 }
 
 function setButtons(isRunning) {
@@ -392,9 +275,7 @@ function setButtons(isRunning) {
 // ---------- start / stop ----------
 document.getElementById("start").addEventListener("click", () => {
   const c = audio();
-  phase = "prep"; measure = 0; beat = 0; loop = 0;
-  currentM = cfg.m; cyclesAtM = 0; nextRand = rand5();
-  currentRand = 1 + Math.floor(Math.random() * 5);
+  beat = 0; measureCount = 0; onBpm2 = false;
   nextTime = c.currentTime + 0.15;
   buildBeatDots();
   running = true;
@@ -409,13 +290,10 @@ document.getElementById("stop").addEventListener("click", () => {
   clearInterval(timer); timer = null;
   clearRenders();
   screen.className = "";
-  const ph = document.getElementById("phase");
-  ph.className = ""; ph.textContent = "Prêt";
+  document.getElementById("curbpm").textContent = "—";
+  document.getElementById("whichbpm").innerHTML = "&nbsp;";
   document.getElementById("mesure").innerHTML = "&nbsp;";
-  const big = document.getElementById("bignum");
-  big.className = "dim"; big.textContent = "—";
   [...beatsRow.children].forEach(d => d.classList.remove("on"));
-  document.getElementById("info").innerHTML = "&nbsp;";
   setButtons(false);
 });
 

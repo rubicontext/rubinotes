@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accordeur de guitare</title>
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --ok:#16a34a; --warn:#b45309; --ko:#dc2626; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 16px 14px 40px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .topnav { display: flex; gap: 14px; margin-bottom: 12px; font-size: .9rem; flex-wrap: wrap; }
+  .topnav a { color: var(--accent); text-decoration: none; }
+  .topnav a.on { font-weight: bold; border-bottom: 2px solid var(--accent); }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; font-weight: normal; text-align: center; }
+  .sub { color: #666; font-size: .9rem; margin-bottom: 14px; text-align: center; max-width: 620px; }
+  .card {
+    background: white; border: 1px solid #e5e0d8; border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    width: 100%; max-width: 620px;
+  }
+  .card h2 { font-size: 1.05rem; color: var(--accent); margin: 0 0 10px; font-weight: normal; }
+
+  /* ----- accordeur micro ----- */
+  #tuner { text-align: center; }
+  #note {
+    font-size: 5.2rem; font-weight: bold; line-height: 1.05; min-height: 1.05em; color: #c8ccd4;
+  }
+  #note.heard { color: var(--ink); }
+  #note.good  { color: var(--ok); }
+  #note .oct { font-size: 1.8rem; color: #94a0ac; font-weight: normal; }
+  #freq { font-size: .9rem; color: #888; min-height: 1.3em; }
+  #target { font-size: .95rem; color: #666; min-height: 1.4em; margin-top: 2px; }
+
+  .gauge { position: relative; height: 68px; margin: 10px auto 2px; max-width: 420px; }
+  .gauge .scale { position: absolute; left: 0; right: 0; top: 34px; height: 8px;
+                  background: linear-gradient(90deg, #f3c1c1, #efe6c8 35%, #bfe8cd 46%, #8fdcae 50%, #bfe8cd 54%, #efe6c8 65%, #f3c1c1);
+                  border-radius: 4px; }
+  .gauge .tick { position: absolute; top: 26px; width: 1px; height: 24px; background: #d4cec2; }
+  .gauge .tick.mid { background: var(--ok); width: 2px; top: 22px; height: 32px; }
+  .needle { position: absolute; top: 0; left: 50%; width: 3px; height: 60px; background: #c8ccd4;
+            border-radius: 2px; transform-origin: 50% 100%; transition: left .09s linear, background .2s; }
+  .needle.heard { background: var(--ink); }
+  .needle.good { background: var(--ok); }
+  .cents-labels { display: flex; justify-content: space-between; max-width: 420px; margin: 0 auto;
+                  font-size: .72rem; color: #aaa; }
+  #cents { font-size: 1.05rem; min-height: 1.4em; margin-top: 6px; color: #888; }
+  #cents.good { color: var(--ok); font-weight: bold; }
+
+  .actions { display: flex; gap: 12px; justify-content: center; margin-top: 10px; }
+  button.main {
+    font-family: inherit; font-size: 1.05rem; padding: 11px 26px;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: 10px; cursor: pointer; touch-action: manipulation;
+  }
+  button.main.off { background: white; color: var(--accent); }
+  #mic-error { color: var(--ko); font-size: .85rem; min-height: 1.3em; margin-top: 8px; }
+
+  /* ----- cordes de référence ----- */
+  .strings { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .strings button {
+    font-family: inherit; padding: 12px 4px; border-radius: 10px; cursor: pointer;
+    border: 1px solid #ccc; background: white; color: var(--ink); touch-action: manipulation;
+  }
+  .strings button b { display: block; font-size: 1.25rem; }
+  .strings button small { color: #888; font-size: .72rem; }
+  .strings button.near { border-color: var(--accent); background: #eff6ff; }
+  .strings button.good { border-color: var(--ok); background: #ecfdf5; }
+  .help { font-size: .85rem; color: #777; line-height: 1.55; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="/">Lecture de notes</a><a href="/accords">Accords</a>
+  <a href="/voiles">Réglage voiles</a><a href="/sables">Carte sables</a>
+  <a href="/echecs">Échecs</a><a href="/chant">Chant</a>
+  <a href="/metronome">Métronome</a><a href="/accordeur" class="on">Accordeur</a>
+</nav>
+
+<h1>🎸 Accordeur de guitare</h1>
+<div class="sub">
+  Accordage standard <b>Mi La Ré Sol Si Mi</b> (E A D G B E).
+  Active le micro pour l'accordeur, ou joue les cordes de référence à l'oreille.
+</div>
+
+<div class="card">
+  <div id="tuner">
+    <div id="note">—</div>
+    <div id="freq">&nbsp;</div>
+    <div class="gauge" id="gauge">
+      <div class="scale"></div>
+      <div class="tick mid" style="left:50%"></div>
+      <div class="needle" id="needle"></div>
+    </div>
+    <div class="cents-labels"><span>-50</span><span>trop grave</span><span>juste</span><span>trop aigu</span><span>+50</span></div>
+    <div id="cents">&nbsp;</div>
+    <div id="target">&nbsp;</div>
+    <div class="actions">
+      <button class="main" id="mic-btn">🎙️ Activer le micro</button>
+    </div>
+    <div id="mic-error"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Cordes de référence (clique pour entendre)</h2>
+  <div class="strings" id="strings"></div>
+  <div class="help" style="margin-top:10px;">
+    Astuce : joue la corde de référence, puis la tienne, et accorde à l'oreille —
+    ou active le micro et vise l'aiguille au centre (± 5 cents = vert).
+  </div>
+</div>
+
+<script>
+// ---------- accordage standard ----------
+const STRINGS = [
+  { fr: "Mi", en: "E2", freq: 82.41,  midi: 40 },
+  { fr: "La", en: "A2", freq: 110.00, midi: 45 },
+  { fr: "Ré", en: "D3", freq: 146.83, midi: 50 },
+  { fr: "Sol", en: "G3", freq: 196.00, midi: 55 },
+  { fr: "Si", en: "B3", freq: 246.94, midi: 59 },
+  { fr: "Mi", en: "E4", freq: 329.63, midi: 64 },
+];
+const NOTE_NAMES = ["Do", "Do#", "Ré", "Ré#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"];
+
+let actx = null;
+function audio() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === "suspended") actx.resume();
+  return actx;
+}
+
+// ---------- cordes de référence (son de corde pincée simplifié) ----------
+const stringsBox = document.getElementById("strings");
+STRINGS.forEach((s, i) => {
+  const b = document.createElement("button");
+  b.innerHTML = "<b>" + s.fr + "</b><small>" + s.en + " · " + s.freq.toFixed(0) + " Hz</small>";
+  b.dataset.i = i;
+  b.addEventListener("click", () => pluck(s.freq));
+  stringsBox.appendChild(b);
+});
+
+function pluck(freq) {
+  const c = audio(), t = c.currentTime + 0.02;
+  // fondamentale + 2 harmoniques, filtre passe-bas, décroissance type corde
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass"; lp.frequency.value = freq * 6;
+  lp.connect(c.destination);
+  for (const [mult, vol, dur] of [[1, 0.5, 2.4], [2, 0.18, 1.6], [3, 0.08, 1.0]]) {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = "triangle";
+    o.frequency.value = freq * mult;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g).connect(lp);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+}
+
+// ---------- accordeur micro (autocorrélation) ----------
+let micStream = null, analyser = null, pollTimer = null;
+const BUF_SIZE = 2048;
+const buf = new Float32Array(BUF_SIZE);
+
+function autoCorrelate(buffer, sampleRate) {
+  // ACF2+ : renvoie la fréquence détectée ou -1 si signal trop faible
+  let SIZE = buffer.length;
+  let rms = 0;
+  for (let i = 0; i < SIZE; i++) rms += buffer[i] * buffer[i];
+  rms = Math.sqrt(rms / SIZE);
+  if (rms < 0.008) return -1;
+
+  let r1 = 0, r2 = SIZE - 1;
+  const thres = 0.2;
+  for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buffer[i]) < thres) { r1 = i; break; }
+  for (let i = 1; i < SIZE / 2; i++) if (Math.abs(buffer[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+  const b2 = buffer.slice(r1, r2);
+  SIZE = b2.length;
+  if (SIZE < 64) return -1;
+
+  const c = new Float32Array(SIZE);
+  for (let i = 0; i < SIZE; i++)
+    for (let j = 0; j < SIZE - i; j++)
+      c[i] += b2[j] * b2[j + i];
+
+  let d = 0;
+  while (d + 1 < SIZE && c[d] > c[d + 1]) d++;
+  let maxval = -1, maxpos = -1;
+  for (let i = d; i < SIZE; i++) if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+  if (maxpos <= 0) return -1;
+  let T0 = maxpos;
+  const x1 = c[T0 - 1], x2 = c[T0], x3 = c[T0 + 1] || 0;
+  const a = (x1 + x3 - 2 * x2) / 2, bb = (x3 - x1) / 2;
+  if (a) T0 = T0 - bb / (2 * a);
+  return sampleRate / T0;
+}
+
+function midiFromFreq(f) { return 69 + 12 * Math.log2(f / 440); }
+function nameFromMidi(m) { return NOTE_NAMES[((m % 12) + 12) % 12]; }
+
+const noteEl = document.getElementById("note");
+const needle = document.getElementById("needle");
+const centsEl = document.getElementById("cents");
+
+function showIdle() {
+  noteEl.className = ""; noteEl.textContent = "—";
+  needle.className = "needle"; needle.style.left = "50%";
+  centsEl.className = ""; centsEl.innerHTML = "&nbsp;";
+  document.getElementById("freq").innerHTML = "&nbsp;";
+  document.getElementById("target").innerHTML = "&nbsp;";
+  document.querySelectorAll(".strings button").forEach(x => x.classList.remove("near", "good"));
+}
+
+function showPitch(freq) {
+  const midi = midiFromFreq(freq);
+  const nearest = Math.round(midi);
+  const cents = Math.round((midi - nearest) * 100);
+  const octave = Math.floor(nearest / 12) - 1;
+  const good = Math.abs(cents) <= 5;
+
+  noteEl.className = good ? "good heard" : "heard";
+  noteEl.innerHTML = nameFromMidi(nearest) + ' <span class="oct">' + octave + "</span>";
+  document.getElementById("freq").textContent = freq.toFixed(1) + " Hz";
+  needle.className = "needle heard" + (good ? " good" : "");
+  needle.style.left = (50 + Math.max(-50, Math.min(50, cents))) + "%";
+  centsEl.className = good ? "good" : "";
+  centsEl.textContent = good ? "✓ juste !" : (cents > 0 ? "+" + cents + " cents (trop aigu)" : cents + " cents (trop grave)");
+
+  // corde standard la plus proche (si on en est à moins de 2 demi-tons)
+  let best = null, bestDist = 1e9;
+  for (const s of STRINGS) {
+    const d = Math.abs(midi - s.midi);
+    if (d < bestDist) { bestDist = d; best = s; }
+  }
+  document.querySelectorAll(".strings button").forEach(x => x.classList.remove("near", "good"));
+  if (best && bestDist < 2) {
+    const btn = document.querySelector('.strings button[data-i="' + STRINGS.indexOf(best) + '"]');
+    if (btn) btn.classList.add(good && nearest === best.midi ? "good" : "near");
+    document.getElementById("target").textContent =
+      "Corde visée : " + best.fr + " (" + best.en + ", " + best.freq.toFixed(2) + " Hz)";
+  } else {
+    document.getElementById("target").innerHTML = "&nbsp;";
+  }
+}
+
+async function startMic() {
+  const errEl = document.getElementById("mic-error");
+  errEl.textContent = "";
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  } catch (e) {
+    errEl.textContent = "Micro refusé ou indisponible (" + e.name + "). Utilise les cordes de référence ci-dessous.";
+    return;
+  }
+  const c = audio();
+  const src = c.createMediaStreamSource(micStream);
+  analyser = c.createAnalyser();
+  analyser.fftSize = BUF_SIZE;
+  src.connect(analyser);
+  // analyse ~12 fois/s : largement assez pour accorder, léger pour le mobile
+  pollTimer = setInterval(() => {
+    analyser.getFloatTimeDomainData(buf);
+    const f = autoCorrelate(buf, c.sampleRate);
+    if (f > 60 && f < 1500) showPitch(f); else showIdle();
+  }, 85);
+  const btn = document.getElementById("mic-btn");
+  btn.textContent = "⏹ Couper le micro";
+  btn.classList.add("off");
+}
+
+function stopMic() {
+  clearInterval(pollTimer); pollTimer = null;
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  analyser = null;
+  showIdle();
+  const btn = document.getElementById("mic-btn");
+  btn.textContent = "🎙️ Activer le micro";
+  btn.classList.remove("off");
+}
+
+document.getElementById("mic-btn").addEventListener("click", () => {
+  if (micStream) stopMic(); else startMic();
+});
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js");
+</script>
+</body>
+</html>

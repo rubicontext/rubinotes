@@ -36,6 +36,10 @@ def metronome(request):
     return render(request, "trainer/metronome.html")
 
 
+def accordeur(request):
+    return render(request, "trainer/accordeur.html")
+
+
 def sables(request):
     return render(request, "trainer/sables.html")
 
@@ -122,8 +126,8 @@ def manifest(request):
 
 
 SW_JS = """
-const CACHE = "guitar-notes-v10";
-const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/echecs", "/chant", "/metronome", "/icon-192.png", "/icon-512.png"];
+const CACHE = "guitar-notes-v11";
+const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/echecs", "/chant", "/metronome", "/accordeur", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
