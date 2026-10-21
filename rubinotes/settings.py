@@ -9,8 +9,12 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,*").split(",")
 
 # Page privée /gouvernance : notes .md hors dépôt, protégées par mot de passe.
-# Sans GOUV_PASSWORD, la page renvoie 404.
-GOUV_PASSWORD = os.environ.get("GOUV_PASSWORD", "")
+# Mot de passe : variable GOUV_PASSWORD, sinon fichier private/gouv_password
+# (modifiable sans sudo sur le serveur). Sans mot de passe, la page renvoie 404.
+_GOUV_PASSWORD_FILE = BASE_DIR / "private" / "gouv_password"
+GOUV_PASSWORD = os.environ.get("GOUV_PASSWORD") or (
+    _GOUV_PASSWORD_FILE.read_text(encoding="utf-8").strip() if _GOUV_PASSWORD_FILE.is_file() else ""
+)
 GOUV_DOCS_DIR = Path(os.environ.get("GOUV_DOCS_DIR", BASE_DIR / "private" / "gouvernance"))
 
 INSTALLED_APPS = [
