@@ -7,7 +7,6 @@ import hmac
 import re
 import time
 
-import markdown
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
@@ -55,6 +54,9 @@ def _title(text, fallback):
 
 
 def _render(text):
+    # import local : si la lib manque, seule cette page tombe, pas tout le site
+    import markdown
+
     html = markdown.markdown(text, extensions=["tables", "fenced_code", "sane_lists", "toc"])
     html = MD_LINK_RE.sub(lambda m: f'href="/gouvernance/{m.group(1)}{m.group(2) or ""}"', html)
     return html.replace("<li>[ ] ", "<li>☐ ").replace("<li>[x] ", "<li>☑ ")
