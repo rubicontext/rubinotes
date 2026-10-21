@@ -126,7 +126,7 @@ def manifest(request):
 
 
 SW_JS = """
-const CACHE = "guitar-notes-v11";
+const CACHE = "guitar-notes-v12";
 const ASSETS = ["/", "/accords", "/voiles", "/sables", "/sables/upload", "/echecs", "/chant", "/metronome", "/accordeur", "/icon-192.png", "/icon-512.png"];
 
 self.addEventListener("install", (e) => {
@@ -145,6 +145,8 @@ self.addEventListener("activate", (e) => {
 
 // network-first : page a jour quand le serveur repond, cache en secours (offline)
 self.addEventListener("fetch", (e) => {
+  // pages privées : jamais mises en cache
+  if (new URL(e.request.url).pathname.startsWith("/gouvernance")) return;
   e.respondWith(
     fetch(e.request)
       .then((resp) => {

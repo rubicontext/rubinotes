@@ -1,2 +1,3 @@
 # Dépendances runtime rubinotes
 Django>=6.0,<7
+Markdown>=3.5,<4

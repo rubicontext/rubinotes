@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ title }} — Gouvernance</title>
+<meta name="theme-color" content="#2563eb">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; --line:#e5e0d8; --muted:#666; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink); margin: 0;
+    line-height: 1.6;
+  }
+  .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+  nav.side {
+    width: 290px; flex-shrink: 0; padding: 24px 16px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    border-right: 1px solid var(--line); font-size: .9rem;
+  }
+  nav.side .brand { font-size: 1.1rem; margin-bottom: 14px; }
+  nav.side .brand a { color: var(--ink); text-decoration: none; }
+  nav.side ol { list-style: none; padding: 0; margin: 0; }
+  nav.side li a {
+    display: block; padding: 5px 8px; border-radius: 6px;
+    color: var(--accent); text-decoration: none;
+  }
+  nav.side li a:hover { background: #eef2ff; }
+  nav.side li a.on { background: var(--accent); color: white; }
+  nav.side .num { color: #999; margin-right: 6px; font-variant-numeric: tabular-nums; }
+  nav.side li a.on .num { color: #dbe4ff; }
+  nav.side .logout { display: inline-block; margin-top: 18px; color: var(--muted); font-size: .82rem; }
+  details.mobile-nav { display: none; }
+  main { flex: 1; min-width: 0; padding: 24px 32px 80px; }
+  article {
+    background: white; border: 1px solid var(--line); border-radius: 12px;
+    padding: 28px 36px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    max-width: 900px;
+  }
+  article h1 { font-size: 1.7rem; font-weight: normal; margin-top: 0; line-height: 1.25; }
+  article h2 { font-size: 1.3rem; font-weight: normal; margin-top: 2em; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  article h3 { font-size: 1.1rem; margin-top: 1.6em; }
+  article h4 { font-size: 1rem; margin-top: 1.4em; }
+  article a { color: var(--accent); }
+  article h2#synthese + ul {
+    background: #f1f5ff; border-left: 4px solid var(--accent);
+    padding: 12px 16px 12px 34px; border-radius: 0 8px 8px 0;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .9rem; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: #f5f2ec; }
+  blockquote { margin: 1em 0; padding: 8px 16px; border-left: 4px solid #d6d0c4; background: #faf8f4; color: #333; }
+  code { font-family: Consolas, Menlo, monospace; font-size: .85em; background: #f3f1ec; padding: 1px 4px; border-radius: 4px; }
+  pre { background: #f6f4ef; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; line-height: 1.4; }
+  pre code { background: none; padding: 0; }
+  .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 22px; max-width: 900px; font-size: .92rem; }
+  .pager a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 860px) {
+    nav.side { display: none; }
+    main { padding: 12px 10px 60px; }
+    article { padding: 18px 16px; }
+    details.mobile-nav {
+      display: block; background: white; border: 1px solid var(--line);
+      border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; font-size: .92rem;
+    }
+    details.mobile-nav summary { cursor: pointer; color: var(--accent); }
+    details.mobile-nav ol { list-style: none; padding: 0; margin: 8px 0 0; }
+    details.mobile-nav li a { display: block; padding: 5px 0; color: var(--accent); text-decoration: none; }
+    details.mobile-nav li a.on { font-weight: bold; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="side">
+    <div class="brand"><a href="/gouvernance">📘 Gouvernance</a></div>
+    <ol>
+      {% for slug, label in docs %}
+      <li><a href="/gouvernance/{{ slug }}"{% if slug == current %} class="on"{% endif %}><span class="num">{{ slug|slice:":2" }}</span>{{ label }}</a></li>
+      {% endfor %}
+    </ol>
+    <a class="logout" href="/gouvernance/sortir">Se déconnecter</a>
+  </nav>
+
+  <main>
+    <details class="mobile-nav">
+      <summary>📘 Sommaire — {{ current|slice:":2" }}</summary>
+      <ol>
+        {% for slug, label in docs %}
+        <li><a href="/gouvernance/{{ slug }}"{% if slug == current %} class="on"{% endif %}>{{ slug|slice:":2" }} · {{ label }}</a></li>
+        {% endfor %}
+      </ol>
+    </details>
+
+    <article>{{ content|safe }}</article>
+
+    <div class="pager"><span id="prev"></span><span id="next"></span></div>
+  </main>
+</div>
+<script>
+  // liens Précédent / Suivant à partir du sommaire
+  const links = [...document.querySelectorAll("nav.side li a")];
+  const i = links.findIndex((a) => a.classList.contains("on"));
+  const mk = (a, txt) => { const e = document.createElement("a"); e.href = a.href; e.textContent = txt; return e; };
+  if (i > 0) document.getElementById("prev").append(mk(links[i - 1], "← " + links[i - 1].textContent.slice(2)));
+  if (i >= 0 && i < links.length - 1) document.getElementById("next").append(mk(links[i + 1], links[i + 1].textContent.slice(2) + " →"));
+</script>
+</body>
+</html>

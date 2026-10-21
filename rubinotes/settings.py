@@ -8,6 +8,11 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-not-secret")
 DEBUG = os.environ.get("DJANGO_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,*").split(",")
 
+# Page privée /gouvernance : notes .md hors dépôt, protégées par mot de passe.
+# Sans GOUV_PASSWORD, la page renvoie 404.
+GOUV_PASSWORD = os.environ.get("GOUV_PASSWORD", "")
+GOUV_DOCS_DIR = Path(os.environ.get("GOUV_DOCS_DIR", BASE_DIR / "private" / "gouvernance"))
+
 INSTALLED_APPS = [
     "trainer",
 ]

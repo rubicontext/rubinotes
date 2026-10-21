@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Gouvernance — accès privé</title>
+<meta name="theme-color" content="#2563eb">
+<style>
+  :root { --ink:#1a1a2e; --bg:#faf8f4; --accent:#2563eb; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 64px 16px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 16px; font-weight: normal; }
+  .card {
+    background: white; border: 1px solid #e5e0d8; border-radius: 12px;
+    padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    max-width: 360px; width: 100%;
+  }
+  input[type=password] {
+    font-family: inherit; font-size: 1rem; width: 100%; padding: 10px;
+    border: 1px solid #d6d0c4; border-radius: 8px; margin-bottom: 14px;
+  }
+  button {
+    font-family: inherit; font-size: 1.05rem; padding: 11px 24px; width: 100%;
+    border: 1px solid var(--accent); background: var(--accent); color: white;
+    border-radius: 8px; cursor: pointer;
+  }
+  .error { color: #dc2626; font-weight: bold; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<h1>🔒 Gouvernance</h1>
+<form class="card" method="post">
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <input type="password" name="password" placeholder="Mot de passe" autofocus autocomplete="current-password">
+  <button type="submit">Entrer</button>
+</form>
+</body>
+</html>

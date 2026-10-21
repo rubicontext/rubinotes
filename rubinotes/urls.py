@@ -1,5 +1,6 @@
 from django.urls import path
 
+from trainer.gouvernance import gouvernance, gouvernance_logout
 from trainer.views import (
     accordeur,
     accords,
@@ -26,6 +27,9 @@ urlpatterns = [
     path("accordeur", accordeur),
     path("sables", sables),
     path("sables.json", sables_data),
+    path("gouvernance", gouvernance),
+    path("gouvernance/sortir", gouvernance_logout),
+    path("gouvernance/<str:slug>", gouvernance),
     path("sables/upload", sables_upload),
     path("manifest.webmanifest", manifest),
     path("sw.js", service_worker),
